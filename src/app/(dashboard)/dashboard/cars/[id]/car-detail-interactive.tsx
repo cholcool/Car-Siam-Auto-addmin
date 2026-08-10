@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui'
 import { MaintenanceRow } from '@/lib/types'
 
@@ -35,9 +36,11 @@ type Props = {
 }
 
 export default function CarDetailInteractive({ carId, carMileage, images, maintenances }: Props) {
+  const router = useRouter()
+
   return (
     <div className="space-y-6 overflow-auto">
-      <CarImageUploader carId={carId} initialImages={images} />
+      <CarImageUploader carId={carId} initialImages={images} onUploaded={() => router.refresh()} />
       <MaintenanceCreateDrawer carId={carId} carMileage={carMileage} maintenances={maintenances} />
     </div>
   )

@@ -13,10 +13,11 @@ interface Props {
   carId?: string
   initialImages?: ExistingImage[]
   onPendingFilesChange?: (files: File[]) => void
+  onUploaded?: () => void
   className?: string
 }
 
-export default function CarImageUploader({ carId, initialImages = [], onPendingFilesChange, className }: Props) {
+export default function CarImageUploader({ carId, initialImages = [], onPendingFilesChange, onUploaded, className }: Props) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialImages)
   const [isUploading, setIsUploading] = useState(false)
@@ -81,6 +82,7 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
       return
     }
     setExistingImages((prev) => prev.filter((item) => item.id !== imageId))
+    onUploaded?.()
   }
 
   const uploadSelected = async () => {
@@ -102,6 +104,7 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
         throw new Error(payload.error || 'Upload failed')
       }
       setSelectedFiles([])
+      onUploaded?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     } finally {

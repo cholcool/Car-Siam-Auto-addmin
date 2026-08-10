@@ -22,7 +22,7 @@ async function saveFile(file: File) {
   const filename = `${randomUUID()}${ext ? `.${ext.toLowerCase()}` : ''}`
   await ensureUploadDir()
   await writeFile(join(UPLOAD_DIR, filename), buffer)
-  return { key: filename, url: `/uploads/${filename}` }
+  return { key: filename, url: `${UPLOAD_DIR}/${filename}` }
 }
 
 export async function POST(request: Request) {
