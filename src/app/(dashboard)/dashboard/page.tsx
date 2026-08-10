@@ -1,6 +1,6 @@
-// import { DashboardHeaderPage } from '@/components/DashboardHeaderPage'
+import { DashboardHeaderPage } from '@/components/DashboardHeaderPage'
 import { DashboardOverviewPage } from '@/components/DashboardOverviewPage'
-// import { DashboardStatisticsPage } from '@/components/DashboardStatisticsPage'
+import { DashboardStatisticsPage } from '@/components/DashboardStatisticsPage'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +23,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     <div className="space-y-8">
       <div className="absolute inset-x-0 top-0 -z-10 h-72 bg-linear-to-b from-[#F4E7B0]/80 via-slate-50 to-transparent" />
 
-      {/* <DashboardHeaderPage activeTab={activeTab} /> */}
+      <DashboardHeaderPage activeTab={activeTab} />
 
       <DashboardOverviewPage activeTab={activeTab} />
 
-      {/* <DashboardStatisticsPage activeTab={activeTab} /> */}
+      <DashboardStatisticsPage activeTab={activeTab} />
 
     </div>
   )

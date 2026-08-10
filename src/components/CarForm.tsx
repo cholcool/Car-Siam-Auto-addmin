@@ -98,12 +98,15 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
 
       if (result.success) {
         const carId = result.data?.id
-        if (carId && pendingFiles.length > 0) {
-          const formData = new FormData()
-          formData.append('carId', carId)
-          pendingFiles.forEach((file) => formData.append('files', file))
-          await fetch('/api/car-images', { method: 'POST', body: formData })
-        }
+          if (carId && pendingFiles.length > 0) {
+            const formData = new FormData()
+            formData.append('carId', carId)
+            pendingFiles.forEach((file) => {
+              formData.append('files', file)
+              formData.append('originalNames', file.name)
+            })
+            await fetch('/api/car-images', { method: 'POST', body: formData })
+          }
         router.refresh()
 
         setTimeout(() => {

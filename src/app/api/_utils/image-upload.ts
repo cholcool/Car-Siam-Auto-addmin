@@ -10,8 +10,26 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR
   ? process.env.UPLOAD_DIR
   : join(process.cwd(), 'public', 'uploads')
 
+const PUBLIC_SITE_URL = process.env.NEXTAUTH_URL + '/uploads/'
+
 type OwnerType = 'driver' | 'guarantor' | 'user'
 type UploadField = 'card' | 'license'
+type UploadedFile = {
+  key: string
+  url: string
+  name: string
+}
+
+const MIME_EXTENSION_MAP: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+  'image/heic': 'heic',
+  'image/heif': 'heif',
+}
 
 async function getUserId() {
   return getAuthorizedUserIdByRoles(ROLE_GROUPS.EDITORS)
@@ -21,14 +39,32 @@ async function ensureUploadDir() {
   await mkdir(UPLOAD_DIR, { recursive: true })
 }
 
-async function saveFile(file: File) {
+function normalizeDisplayName(value: string, fallback: string) {
+  const trimmed = value.trim()
+  return trimmed && trimmed.toLowerCase() !== 'blob' ? trimmed : fallback
+}
+
+function getExtension(file: File, originalName: string) {
+  const fromMime = MIME_EXTENSION_MAP[file.type]
+  if (fromMime) return fromMime
+
+  const sourceName = originalName.trim() && originalName.toLowerCase() !== 'blob' ? originalName : file.name
+  const fromName = sourceName.includes('.') ? sourceName.split('.').pop() : ''
+  return fromName?.toLowerCase() || ''
+}
+
+async function saveFile(file: File, originalName: string): Promise<UploadedFile> {
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
-  const ext = file.name.includes('.') ? file.name.split('.').pop() : ''
+  const ext = getExtension(file, originalName)
   const filename = `${randomUUID()}${ext ? `.${ext.toLowerCase()}` : ''}`
   await ensureUploadDir()
   await writeFile(join(UPLOAD_DIR, filename), buffer)
-  return { key: filename, url: `${UPLOAD_DIR}/${filename}` }
+  return {
+    key: filename,
+    url: `${PUBLIC_SITE_URL}${filename}`,
+    name: normalizeDisplayName(originalName, file.name),
+  }
 }
 
 function validateField(field: string): field is UploadField {
@@ -69,6 +105,7 @@ export async function uploadImage(ownerType: OwnerType, request: Request) {
   const formData = await request.formData()
   const ownerId = String(formData.get('ownerId') ?? '').trim()
   const field = String(formData.get('field') ?? '').trim()
+  const originalName = String(formData.get('originalName') ?? '').trim()
   const file = formData.get('file')
 
   if (!ownerId) return NextResponse.json({ error: 'ownerId is required' }, { status: 400 })
@@ -83,12 +120,12 @@ export async function uploadImage(ownerType: OwnerType, request: Request) {
     )
   }
 
-  const saved = await saveFile(file)
+  const saved = await saveFile(file, originalName)
   const image = await prisma.image.create({
     data: {
       key: saved.key,
       url: saved.url,
-      name: file.name,
+      name: saved.name,
       size: BigInt(file.size),
       type: file.type || null,
       createdBy: userId,

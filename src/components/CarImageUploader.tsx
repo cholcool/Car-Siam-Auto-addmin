@@ -53,7 +53,7 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
 
     const compressedArr = fileArr.map(async (item:any) => {
       const options = {
-        maxSizeMB: 1,            // ขนาดไฟล์สูงสุดที่ต้องการ (เช่น ไม่เกิน 1MB)
+        maxSizeMB: 0.7,            // ขนาดไฟล์สูงสุดที่ต้องการ (เช่น ไม่เกิน 1MB)
         maxWidthOrHeight: 1024,  // ขนาดความกว้างหรือสูงสูงสุดไม่เกิน 1024px (รักษา Aspect Ratio อัตโนมัติ)
         useWebWorker: true,      // ใช้ Web Worker ทำงานเบื้องหลัง เพื่อไม่ให้หน้าจอค้างขณะบีบอัด
       };
@@ -61,7 +61,13 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
       return await imageCompression(item, options);
     })
 
-    const compressedFiles = await Promise.all(compressedArr)
+    const compressedFiles = await Promise.all(
+      compressedArr.map(async (promise, index) => {
+        const compressed = await promise
+        const original = fileArr[index]
+        return new File([compressed], original.name, { type: compressed.type || original.type })
+      })
+    )
     
     setError(null)
     setSelectedFiles((prev) => [...prev, ...compressedFiles])
@@ -93,7 +99,10 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
     try {
       const formData = new FormData()
       formData.append('carId', carId)
-      selectedFiles.forEach((file) => formData.append('files', file))
+      selectedFiles.forEach((file) => {
+        formData.append('files', file)
+        formData.append('originalNames', file.name)
+      })
 
       const response = await fetch('/api/car-images', {
         method: 'POST',

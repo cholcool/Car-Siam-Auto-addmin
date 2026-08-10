@@ -40,13 +40,16 @@ export default function CardUploadImage({
   
     try {
       const compressedFile = await imageCompression(file, options);
+      const normalizedFile = new File([compressedFile], file.name, {
+        type: compressedFile.type || file.type,
+      })
       
       // console.log('ขนาดไฟล์เดิม:', (file.size / 1024 / 1024).toFixed(2), 'MB');
       // console.log('ขนาดไฟล์ใหม่:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
       // console.log('compressed:', compressedFile);
       // console.log('original:', file);
       
-      onChange(compressedFile);
+      onChange(normalizedFile);
     } catch (error) {
       console.error('การบีบอัดรูปภาพผิดพลาด:', error);
       onChange(file);
