@@ -6,7 +6,9 @@ import prisma from '@/lib/prisma'
 import { ROLE_GROUPS } from '@/lib/rbac/access'
 import { getAuthorizedUserIdByRoles } from '@/lib/auth-server'
 
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads')
+const UPLOAD_DIR = process.env.UPLOAD_DIR
+  ? process.env.UPLOAD_DIR
+  : join(process.cwd(), 'public', 'uploads')
 
 type OwnerType = 'driver' | 'guarantor' | 'user'
 type UploadField = 'card' | 'license'

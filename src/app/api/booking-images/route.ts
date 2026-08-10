@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'
+
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -5,7 +7,9 @@ import { join } from 'node:path'
 import prisma from '@/lib/prisma'
 import { getCachedSession } from '@/lib/auth'
 
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads')
+const UPLOAD_DIR = process.env.UPLOAD_DIR
+  ? process.env.UPLOAD_DIR
+  : join(process.cwd(), 'public', 'uploads')
 
 async function ensureUploadDir() {
   await mkdir(UPLOAD_DIR, { recursive: true })

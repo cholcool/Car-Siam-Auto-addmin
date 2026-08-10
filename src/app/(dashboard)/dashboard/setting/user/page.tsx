@@ -15,7 +15,7 @@ export default async function UsersPage() {
       },
     }),
     prisma.role.findMany({
-      where: { isDeleted: false, code: {not: "ADMIN"} },
+      where: { isDeleted: false },
       orderBy: { createdAt: 'desc' },
     }),
   ])

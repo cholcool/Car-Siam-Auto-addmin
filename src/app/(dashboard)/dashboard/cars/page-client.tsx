@@ -143,7 +143,7 @@ export default function PageClient({carsIn} : PageProps ) {
                       <td className='sticky right-0 bg-white p-3 border-l drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]'>
                         <div className="flex justify-end gap-2">
                           <Button asChild size={"sm"} variant="ghost">
-                            <Link href={`/cars/${car.id}`}>
+                            <Link href={`/dashboard/cars/${car.id}`}>
                               <Edit className="size-4" />
                             </Link>
                           </Button>
