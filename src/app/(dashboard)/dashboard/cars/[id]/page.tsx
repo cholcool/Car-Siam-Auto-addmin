@@ -101,7 +101,7 @@ export default async function CarDetailPage({ params }: PageProps) {
       throw new Error(result.error || 'ไม่สามารถบันทึกข้อมูลรถได้')
     }
 
-    redirect(`/cars/${id}`)
+    redirect(`/dashboard/cars/${id}`)
   }
 
   return (
