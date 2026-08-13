@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { Loader2, ImagePlus, ImageUp, BookImage, Car } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AlertDialogDestructive } from '@/components/AlertDialogDestructive'
-import imageCompression from 'browser-image-compression';
 
 type ExistingImage = { id: string; url: string; name?: string | null }
 
@@ -50,6 +49,8 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
     if (!files?.length) return
 
     const fileArr = Array.from(files);
+    // The compression library is large, so only fetch it after the user selects images.
+    const { default: imageCompression } = await import('browser-image-compression')
 
     const compressedArr = fileArr.map(async (item:any) => {
       const options = {
@@ -143,7 +144,14 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
             {existingImages.map((image) => (
               <div key={image.id} className="group relative overflow-hidden rounded-xl border border-slate-200">
                 <div className="relative aspect-4/3">
-                  <Image src={image.url} alt={image.name ?? 'car image'} fill className="object-cover" />
+                  <Image
+                    src={image.url}
+                    alt={image.name ?? 'car image'}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                    loading="lazy"
+                    className="object-cover"
+                  />
                 </div>
                 <AlertDialogDestructive 
                   onClick={() => removeExisting(image.id)} 
@@ -161,7 +169,7 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
             {previews.map(({ file, preview }, index) => (
               <div key={`${file.name}-${index}`} className="relative overflow-hidden rounded-xl border border-slate-200">
                 <div className="relative aspect-4/3">
-                  <Image src={preview} alt={file.name} fill className="object-cover" />
+                  <Image src={preview} alt={file.name} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-slate-100 bg-white px-3 py-2 text-xs text-slate-600">
                   <span className="truncate">ตัวอย่างรูปภาพนี้ยังไม่ถูกอัพโหลด</span>

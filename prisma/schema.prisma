@@ -204,6 +204,7 @@ model MapCarImage {
   image       Image    @relation(fields: [imageId], references: [id], onDelete: Cascade)
 
   @@map("map_cars_images")
+  @@index([carId, isDeleted, number], map: "idx_car_images_car_active_order")
 }
 
 model Product {
@@ -431,4 +432,5 @@ model Maintenance {
 
   @@map("maintenances")
   @@index([dateAlert], map: "idx_maintenances_alert")
+  @@index([carId, isDeleted, dateStart(sort: Desc)], map: "idx_maintenances_car_active_date")
 }
