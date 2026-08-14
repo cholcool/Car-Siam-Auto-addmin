@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react"
 import { 
   Trash2Icon, 
   TriangleAlert,
@@ -70,6 +71,11 @@ function buttonClass(variant: AlertDialogVariant) {
 }
   
 export function AlertDialogDestructive({ onClick, title, description, variant, size, iconText }: AlertDialogDestructiveProps) {
+  const { data: session } = useSession();
+  const userRoles = session?.user?.roles || [];
+  
+  if (!userRoles.includes('ADMIN') && !userRoles.includes('STAFF')) return null;
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

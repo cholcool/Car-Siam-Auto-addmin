@@ -51,8 +51,8 @@ export default function PaymentsClient({ initialBookings }: { initialBookings: R
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-extrabold text-slate-950">รายการเช่าทั้งหมด</h2>
           </div>
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[1100px] text-left">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-275 text-left">
               <thead>
                 <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
                   <th className="px-3 py-3">วันที่</th>

@@ -49,8 +49,8 @@ function normalizeIconKey(value: string | null | undefined): MenuAccessItem['ico
 }
 
 export const ROLE_GROUPS = {
-  ADMIN_STAFF: ['ADMIN', 'MANAGER'] as const,
-  EDITORS: ['ADMIN', 'MANAGER', 'STAFF'] as const,
+  ADMINISTRATOR: ['ADMIN', 'MANAGER'] as const,
+  EDITORS: ['ADMIN', 'MANAGER', 'STAFF', 'VIEWER'] as const,
 } as const
 
 export function hasAnyRole(userRoles: string[] | undefined, allowed: readonly string[]) {

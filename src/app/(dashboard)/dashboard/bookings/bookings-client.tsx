@@ -141,12 +141,6 @@ export default function BookingsClient({
 
       <Card>
         <CardContent className="p-6 sm:p-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-extrabold text-slate-950">รายการล่าสุด</h2>
-            </div>
-          </div>
-
           <div className="overflow-x-auto">
             <table className="mt-6 w-full min-w-285 text-left">
               <thead>

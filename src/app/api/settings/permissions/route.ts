@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { getAuthorizedUserId } from '@/lib/auth-server'
+import { getAuthorizedUserIdAdmin } from '@/lib/auth-server'
 
 function normalize(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
 export async function POST(request: Request) {
-  const userId = await getAuthorizedUserId()
+  const userId = await getAuthorizedUserIdAdmin()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await request.json().catch(() => ({}))
   const permissionName = normalize(body.permission_name)
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const userId = await getAuthorizedUserId()
+  const userId = await getAuthorizedUserIdAdmin()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await request.json().catch(() => ({}))
   const id = normalize(body.id)
@@ -62,7 +62,7 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const userId = await getAuthorizedUserId()
+  const userId = await getAuthorizedUserIdAdmin()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await request.json().catch(() => ({}))
   const id = normalize(body.id)

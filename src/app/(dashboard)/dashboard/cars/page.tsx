@@ -46,7 +46,7 @@ export default async function CarsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">จัดการรถ</h1>
         </div>
@@ -85,7 +85,7 @@ export default async function CarsPage({ searchParams }: PageProps) {
         </Select>
 
         <Select name="brand" defaultValue={brand}>
-          <option value="">ทุกยี่ห้อ</option>
+          <option value="">ทุกแบรนด์</option>
           {brands.map((brand: any) => (
             <option key={brand.id} value={brand.name}>
               {brand.name}

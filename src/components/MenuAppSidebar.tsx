@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react"
 import {
   SidebarTrigger,
   Sidebar,
@@ -37,6 +38,8 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
   const {  setOpenMobile } = useSidebar()
   const primaryMenus = menuItems.filter((item) => !isSettingMenuPath(item.href))
   const settingMenus = menuItems.filter((item) => isSettingMenuPath(item.href))
+  const { data: session } = useSession();
+  const userRoles = session?.user?.roles || [];
 
   return (
     <Sidebar collapsible="icon" className="fixed">
@@ -112,39 +115,45 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
                       </div>
                     </DropdownMenuLabel>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel className="gap-2">Setting</DropdownMenuLabel>
-                  </DropdownMenuGroup>
-                  <DropdownMenuGroup className="py-2">
-                    {settingMenus.length > 0 ? (
-                      <>
-                        {settingMenus.map((item) => {
-                          const active = isMenuActive(pathname, item.href);
-                          const Icon = getMenuIconComponent(item.iconKey);
 
-                          return (
-                            <DropdownMenuItem
-                              key={item.href}
-                              className={cn(
-                                "flex transition-colors",
-                                active
-                                  ? "bg-linear-to-b from-[#6F3BB7] to-[#4E2788] text-white shadow-lg shadow-black/10 hover:text-white"
-                                  : "text-[#000000] hover:bg-white/10 hover:text-white"
-                              )}
-                            >
-                              <SidebarMenuButton asChild className="p-0 m-0">
-                                <Link href={item.href} onClick={() => setOpenMobile(false)} className="p-0 m-0">
-                                  <Icon aria-hidden="true" />
-                                  <SidebarGroup className="group-data-[collapsible=icon]:hidden m-0 p-0">{item.title}</SidebarGroup>
-                                </Link>
-                              </SidebarMenuButton>
-                            </DropdownMenuItem>
-                          );
-                        })}
-                      </>
-                    ) : null}
-                  </DropdownMenuGroup>
+                  {(userRoles.includes('ADMIN') || userRoles.includes('MANAGER')) && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel className="gap-2">Setting</DropdownMenuLabel>
+                      </DropdownMenuGroup>
+                      <DropdownMenuGroup className="py-2">
+                        {settingMenus.length > 0 ? (
+                          <>
+                            {settingMenus.map((item) => {
+                              const active = isMenuActive(pathname, item.href);
+                              const Icon = getMenuIconComponent(item.iconKey);
+
+                              return (
+                                <DropdownMenuItem
+                                  key={item.href}
+                                  className={cn(
+                                    "flex transition-colors",
+                                    active
+                                      ? "bg-linear-to-b from-[#6F3BB7] to-[#4E2788] text-white shadow-lg shadow-black/10 hover:text-white"
+                                      : "text-[#000000] hover:bg-white/10 hover:text-white"
+                                  )}
+                                >
+                                  <SidebarMenuButton asChild className="p-0 m-0">
+                                    <Link href={item.href} onClick={() => setOpenMobile(false)} className="p-0 m-0">
+                                      <Icon aria-hidden="true" />
+                                      <SidebarGroup className="group-data-[collapsible=icon]:hidden m-0 p-0">{item.title}</SidebarGroup>
+                                    </Link>
+                                  </SidebarMenuButton>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </>
+                        ) : null}
+                      </DropdownMenuGroup>
+                    </>
+                  )}
+
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
                     <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/signin" })} className="h-10">

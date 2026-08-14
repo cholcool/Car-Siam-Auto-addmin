@@ -31,7 +31,7 @@ const MIME_EXTENSION_MAP: Record<string, string> = {
   'image/heif': 'heif',
 }
 
-async function getUserId() {
+async function getUserIdEditor() {
   return getAuthorizedUserIdByRoles(ROLE_GROUPS.EDITORS)
 }
 
@@ -99,7 +99,7 @@ async function resolveOwnerOrThrow(ownerType: OwnerType, ownerId: string) {
 }
 
 export async function uploadImage(ownerType: OwnerType, request: Request) {
-  const userId = await getUserId()
+  const userId = await getUserIdEditor()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const formData = await request.formData()
@@ -164,7 +164,7 @@ export async function uploadImage(ownerType: OwnerType, request: Request) {
 }
 
 export async function deleteImage(ownerType: OwnerType, request: Request) {
-  const userId = await getUserId()
+  const userId = await getUserIdEditor()
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json().catch(() => ({}))

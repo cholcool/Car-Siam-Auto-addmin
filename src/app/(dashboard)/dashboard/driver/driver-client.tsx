@@ -107,13 +107,7 @@ export default function DriverPageClient({ initialDrivers }: { initialDrivers: D
       ) : (
         <Card>
           <CardContent className="p-6 sm:p-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">รายการล่าสุด</h2>
-              </div>
-            </div>
-
-            <div className="mt-6 overflow-x-auto">
+            <div className="overflow-x-auto">
               <table className="w-full min-w-250 text-left">
                 <thead>
                   <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">

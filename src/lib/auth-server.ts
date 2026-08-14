@@ -17,8 +17,8 @@ export async function getSessionAndRoles() {
   return { session, roles };
 }
 
-export async function getAuthorizedUserId() {
-  return getAuthorizedUserIdByRoles(ROLE_GROUPS.ADMIN_STAFF)
+export async function getAuthorizedUserIdAdmin() {
+  return getAuthorizedUserIdByRoles(ROLE_GROUPS.ADMINISTRATOR)
 }
 
 export async function getAuthorizedUserIdByRoles(allowedRoles: readonly string[]) {

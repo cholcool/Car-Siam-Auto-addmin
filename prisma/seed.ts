@@ -72,7 +72,7 @@ async function main() {
   }
 
   const menuData = [
-    { key: 'dashboard', title: 'Dashboard', icon: 'LayoutDashboard', path: '/dashboard', sequence: 1, requiredPermission: 'ADMIN', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { key: 'dashboard', title: 'Dashboard', icon: 'LayoutDashboard', path: '/dashboard', sequence: 1, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'cars', title: 'จัดการรถ', icon: 'Car', path: '/cars', sequence: 2, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'driver', title: 'ข้อมูลลูกค้า', icon: 'Users', path: '/driver', sequence: 3, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'products', title: 'ข้อมูลบริการ', icon: 'Tag', path: '/products', sequence: 4, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },

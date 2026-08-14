@@ -290,15 +290,9 @@ export default function UsersPageClient({
 
       <Card>
         <CardContent className="p-6 sm:p-8">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-extrabold text-slate-950">รายการล่าสุด</h2>
-            </div>
-          </div>
-
           {error ? <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">{error}</div> : null}
 
-          <div className="mt-6 overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-275 text-left">
               <thead>
                 <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
