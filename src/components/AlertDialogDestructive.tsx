@@ -74,7 +74,7 @@ export function AlertDialogDestructive({ onClick, title, description, variant, s
   const { data: session } = useSession();
   const userRoles = session?.user?.roles || [];
   
-  if (!userRoles.includes('ADMIN') && !userRoles.includes('STAFF')) return null;
+  if (!userRoles.includes('ADMIN') && !userRoles.includes('MANAGER')) return null;
 
   return (
     <AlertDialog>

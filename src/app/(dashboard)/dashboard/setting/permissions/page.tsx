@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
-import PermissionsPageClient, { type MenuRow, type PermissionRow } from './permissions-client'
+import PermissionsPageClient, { type MenuRow, type PermissionRow } from '@/app/dashboard/setting/permissions/permissions-client'
+import PageSetting from '@/app/dashboard/setting/page'
 
 export default async function PermissionsPage() {
   const [permissions, menus] = await Promise.all([
@@ -21,5 +22,10 @@ export default async function PermissionsPage() {
     menu_title: menu.title,
   }))
 
-  return <PermissionsPageClient initialPermissions={permissionRows} initialMenus={menuRows} />
+  return (
+    <>
+      <PageSetting />
+      <PermissionsPageClient initialPermissions={permissionRows} initialMenus={menuRows} />
+    </>
+  )
 }

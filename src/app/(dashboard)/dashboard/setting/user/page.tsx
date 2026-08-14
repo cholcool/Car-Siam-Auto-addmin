@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
-import UsersPageClient, { type RoleRow, type UserRow } from './users-client'
+import UsersPageClient, { type RoleRow, type UserRow } from '@/app/dashboard/setting/user/users-client'
+import PageSetting from '@/app/dashboard/setting/page'
 
 export default async function UsersPage() {
   const [users, roles] = await Promise.all([
@@ -55,5 +56,10 @@ export default async function UsersPage() {
     is_active: role.isActive,
   }))
 
-  return <UsersPageClient initialUsers={userRows} initialRoles={roleRows} />
+  return (
+    <>
+      <PageSetting />
+      <UsersPageClient initialUsers={userRows} initialRoles={roleRows} />
+    </>
+  )
 }

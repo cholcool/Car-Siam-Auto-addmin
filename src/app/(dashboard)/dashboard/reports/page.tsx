@@ -1,3 +1,4 @@
+import PageSetting from '@/app/dashboard/setting/page'
 import { DashboardStatisticsPage } from '@/components/DashboardStatisticsPage'
 
 export default async function ReportsPage() {
@@ -11,6 +12,8 @@ export default async function ReportsPage() {
           {/* <p className="mt-3 text-lg font-bold text-slate-500">ไปยังหน้ารายการเอกสารและการชำระเงิน</p> */}
         </div>
       </header>
+
+      <PageSetting />
 
       <DashboardStatisticsPage activeTab={activeTab} />
 

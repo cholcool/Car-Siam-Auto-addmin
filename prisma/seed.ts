@@ -77,7 +77,7 @@ async function main() {
     { key: 'driver', title: 'ข้อมูลลูกค้า', icon: 'Users', path: '/driver', sequence: 3, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'products', title: 'ข้อมูลบริการ', icon: 'Tag', path: '/products', sequence: 4, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'bookings', title: 'บันทึกรายการ', icon: 'ClipboardList', path: '/bookings', sequence: 5, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
-    { key: 'reports', title: 'รายงาน', icon: 'Newspaper', path: '/reports', sequence: 6, requiredPermission: 'ADMIN,STAFF', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { key: 'reports', title: 'รายงาน', icon: 'Newspaper', path: '/reports', sequence: 6, requiredPermission: 'ADMIN', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'documents', title: 'เอกสารพิมพ์', icon: 'Printer', path: '/documents', sequence: 7, requiredPermission: 'ADMIN,STAFF', isActive: false, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'payments', title: 'การชำระเงิน', icon: 'CreditCard', path: '/payments', sequence: 8, requiredPermission: 'ADMIN,STAFF', isActive: false, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
     { key: 'setting-user', title: 'ตั้งค่าผู้ใช้', icon: 'Settings', path: '/setting/user', sequence: 9, requiredPermission: 'ADMIN', isActive: true, createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
@@ -159,6 +159,74 @@ async function main() {
       });
     }
   }
+
+  const brandData = [
+    { name: 'Toyota', description: 'Toyota Motor Corporation', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Honda', description: 'Honda Motor Co., Ltd.', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Nissan', description: 'Nissan Motor Co., Ltd.', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Mazda', description: 'Mazda Motor Corporation', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Mitsubishi', description: 'Mitsubishi Motors', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Isuzu', description: 'Isuzu Motors', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Suzuki', description: 'Suzuki Motor Corporation', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Subaru', description: 'Subaru Corporation', remark: 'Japanese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Mercedes-Benz', description: 'Mercedes-Benz', remark: 'European brand (Germany)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'BMW', description: 'Bayerische Motoren Werke AG', remark: 'European brand (Germany)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Audi', description: 'Audi AG', remark: 'European brand (Germany)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Porsche', description: 'Porsche AG', remark: 'European brand (Germany)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Volkswagen', description: 'Volkswagen Group', remark: 'European brand (Germany)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Volvo', description: 'Volvo Cars', remark: 'European brand (Sweden)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Peugeot', description: 'Peugeot', remark: 'European brand (France)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'BYD', description: 'BYD Auto', remark: 'Chinese brand (EV Leader)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'GWM', description: 'Great Wall Motor', remark: 'Chinese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'MG', description: 'Morris Garages', remark: 'Chinese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Changan', description: 'Changan Automobile', remark: 'Chinese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'GAC AION', description: 'GAC Aion New Energy Automobile', remark: 'Chinese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Neta', description: 'Hozon Auto (Neta)', remark: 'Chinese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Chery', description: 'Chery Automobile', remark: 'Chinese brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Zeekr', description: 'Zeekr Intelligent Technology', remark: 'Chinese brand (Premium EV)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Tesla', description: 'Tesla, Inc.', remark: 'American brand (EV Leader)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Ford', description: 'Ford Motor Company', remark: 'American brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Chevrolet', description: 'Chevrolet (General Motors)', remark: 'American brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Jeep', description: 'Jeep (Stellantis)', remark: 'American brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Hyundai', description: 'Hyundai Motor Company', remark: 'Korean brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Kia', description: 'Kia Corporation', remark: 'Korean brand', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Ferrari', description: 'Ferrari S.p.A.', remark: 'Supercar brand (Italy)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Lamborghini', description: 'Automobili Lamborghini S.p.A.', remark: 'Supercar brand (Italy)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Maserati', description: 'Maserati S.p.A.', remark: 'Luxury Sport brand (Italy)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'McLaren', description: 'McLaren Automotive', remark: 'Supercar brand (UK)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Aston Martin', description: 'Aston Martin Lagonda', remark: 'Luxury Sport brand (UK)', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' }
+  ];
+  
+  for (const rows of brandData) {
+    await prisma.brand.upsert({
+      where: { name: rows.name },
+      update: { ...rows },
+      create: { ...rows },
+    });
+  }
+  
+  const vehicleTypeData = [
+    { name: 'Sedan', description: 'รถเก๋ง 4 ประตู', remark: 'Passenger Car', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Hatchback', description: 'รถท้ายตัด 5 ประตู', remark: 'Passenger Car', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Coupe', description: 'รถสปอร์ต 2 ประตู', remark: 'Passenger Car', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Convertible', description: 'รถเปิดประทุน', remark: 'Passenger Car', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Wagon', description: 'รถตรวจการ / ท้ายยาว', remark: 'Passenger Car', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'SUV', description: 'รถอเนกประสงค์ยกสูง', remark: 'Utility Vehicle', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'PPV', description: 'รถอเนกประสงค์พื้นฐานกระบะ', remark: 'Utility Vehicle', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Crossover', description: 'รถอเนกประสงค์ขนาดเล็ก (CUV)', remark: 'Utility Vehicle', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'MPV', description: 'รถตู้หรือรถบ้านอเนกประสงค์', remark: 'Utility Vehicle', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Pick-up', description: 'รถกระบะบรรทุก', remark: 'Commercial Vehicle', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' },
+    { name: 'Van', description: 'รถตู้โดยสาร / ขนส่ง', remark: 'Commercial Vehicle', createdBy: '00000000-0000-0000-0000-000000000000', updatedBy: '00000000-0000-0000-0000-000000000000' }
+  ];
+
+  for (const rows of vehicleTypeData) {
+    await prisma.vehicleType.upsert({
+      where: { name: rows.name },
+      update: { ...rows },
+      create: { ...rows },
+    });
+  }
+
 
   console.log(`Seed finished. Admin: ${adminEmail}`);
 }

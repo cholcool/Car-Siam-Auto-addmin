@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
 import RolesPageClient, { type RoleRow } from './roles-client'
+import PageSetting from '@/app/dashboard/setting/page'
 
 export default async function RolesPage() {
   const roles = await prisma.role.findMany({
@@ -16,5 +17,10 @@ export default async function RolesPage() {
     is_active: role.isActive,
   }))
 
-  return <RolesPageClient initialRoles={rows} />
+  return (
+    <>
+      <PageSetting />
+      <RolesPageClient initialRoles={rows} />
+    </>
+  )
 }

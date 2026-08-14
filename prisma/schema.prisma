@@ -89,7 +89,7 @@ model Car {
 
 model VehicleType {
   id          String   @id @default(uuid()) @map("vehicle_type_id") @db.Uuid
-  name        String   @map("vehicle_type_name") @db.VarChar(100)
+  name        String   @unique @map("vehicle_type_name") @db.VarChar(100)
   description String?  @map("vehicle_type_desc") @db.VarChar(255)
   remark      String?  @map("vehicle_type_remark") @db.VarChar(500)
   createdAt   DateTime @default(now()) @map("created_date") @db.Timestamptz
