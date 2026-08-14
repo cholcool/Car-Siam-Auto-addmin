@@ -24,7 +24,7 @@ export default function MenuRBACSidebar({ user, menuItems }: { user?: SidebarUse
             <Car className="h-7 w-7" aria-hidden="true" />
           </div>
           <div>
-            <div className="text-xl font-bold leading-tight">RentCar Admin</div>
+            <div className="text-xl font-bold leading-tight">Car Siam Auto Admin</div>
             <div className="mt-0.5 text-sm font-semibold text-[#F4E7B0]">ระบบจัดการเช่ารถ</div>
           </div>
         </div>

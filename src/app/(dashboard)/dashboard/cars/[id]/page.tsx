@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps) {
   const { id } = await params
   const car = await getCar(id)
   if (!car) return { title: 'Vehicle not found' }
-  return { title: `${car.brand.name} ${car.model} | RentCar Admin` }
+  return { title: `${car.brand.name} ${car.model} | Car Siam Auto Admin` }
 }
 
 function SectionSkeleton({ className }: { className: string }) {

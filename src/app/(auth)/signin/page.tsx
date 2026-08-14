@@ -67,7 +67,7 @@ export default function SignInPage() {
             <Car className="h-7 w-7" aria-hidden="true" strokeWidth={2.25} />
           </div>
 
-          <h1 className="mt-5 text-2xl font-bold text-slate-900">RentCar Admin</h1>
+          <h1 className="mt-5 text-2xl font-bold text-slate-900">Car Siam Auto Admin</h1>
           <p className="mt-1 text-sm font-medium text-slate-500">ระบบจัดการเช่ารถ</p>
         </div>
 

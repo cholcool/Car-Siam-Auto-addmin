@@ -27,7 +27,7 @@ function ResponsiveHeader({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="text-base font-bold text-slate-950">RentCar Admin</span>
+        <span className="text-base font-bold text-slate-950">Car Siam Auto Admin</span>
       </header>
 
       <div className={`fixed inset-0 z-40 lg:hidden ${openMobile ? "" : "pointer-events-none"}`} slot="mobile">
