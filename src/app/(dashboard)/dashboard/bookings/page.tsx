@@ -78,7 +78,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
         },
         payments: {
           where: { isDeleted: false },
-          select: { id: true, amount: true, paymentStatus: true, paymentMethod: true, paymentDate: true, isDeleted: true },
+          select: { id: true, amount: true },
           orderBy: { paymentDate: 'desc' },
         },
       },

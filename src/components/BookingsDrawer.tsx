@@ -294,9 +294,13 @@ export default function BookingsDrawer({
         bookingPaymentImagesId: form.paymentImageId || null,
         bookingHealthCheck01ImagesId: form.healthCheck01ImageId || null,
         bookingHealthCheck02ImagesId: form.healthCheck02ImageId || null,
-        dateCount: days,
-        dailyRate: gross,
-        totalAmount: total,
+        dateCount: Number(days ?? 0),
+        price: Number(form.price ?? 0),
+        dailyRate: Number(gross ?? 0),
+        discountAmount: Number(form.discountAmount ?? 0),
+        taxAmount: Number(form.taxAmount ?? 0),
+        totalAmount: Number(total ?? 0),
+        mileage: Number(form.mileage ?? carsMileage)
       }
       const res = await fetch(editingId ? `/api/bookings/${editingId}` : '/api/bookings', {
         method: editingId ? 'PATCH' : 'POST',
@@ -378,8 +382,8 @@ export default function BookingsDrawer({
             <div className="mb-4 p-4 rounded-lg bg-amber-50 text-sm font-medium text-amber-700 relative">
               <div className='md:flex justify-baseline items-center gap-4'>
                 <div className='w-full'>
-                  <div className="font-bold">แจ้งเตือน: อัพเดทเลขไมล์</div>
-                  <div className='text-xs font-medium'>กรุณาใส่ข้อมูลเลขไมล์ให้มากกว่าเลขไมล์ปัจจุบัน <b>{formatCompactNumber(toNumber(carsMileage))}</b></div>
+                  <div className="font-bold">แจ้งเตือน: เลขไมล์ปัจจุบัน <b>{formatCompactNumber(toNumber(carsMileage))}</b></div>
+                  <div className='text-xs font-medium'>กรุณาอัพเดทข้อมูลเลขไมล์ให้มากกว่าเลขไมล์ปัจจุบัน</div>
                 </div>
                 <div className='w-full mileage'>
                   <Input 

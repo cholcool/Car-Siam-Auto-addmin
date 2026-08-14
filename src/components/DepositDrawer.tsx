@@ -106,7 +106,7 @@ export default function DepositDrawer({ itemsList, setDrawerOpen }: Props) {
           <CardContent className="flex h-full flex-col gap-4 p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-extrabold text-slate-950">สรุปยอด ${error}</h2>
+                <h2 className="text-2xl font-extrabold text-slate-950">สรุปยอด</h2>
               </div>
               <button type="button" onClick={closeDrawer} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 hover:bg-slate-50">
                 <X className="h-5 w-5" />

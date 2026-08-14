@@ -19,6 +19,10 @@ export async function PATCH(
 
   const nextCarId = String(body.carId ?? '').trim()
   if (!nextCarId) return NextResponse.json({ message: 'carId is required' }, { status: 400 })
+  const mileage = Number(body.mileage)
+  if (!Number.isInteger(mileage) || mileage < 0) {
+    return NextResponse.json({ message: 'mileage must be a non-negative integer' }, { status: 400 })
+  }
 
   try {
     const updated = await prisma.$transaction(async (tx) => {
@@ -29,13 +33,13 @@ export async function PATCH(
       if (!targetCar) {
         throw new Error('Car not found')
       }
-      if (body.mileage < targetCar.mileage) {
+      if (mileage < targetCar.mileage) {
         throw new Error('Car mileage less then now')
       }
 
       const targetCarUpdate = await tx.car.updateMany({
         where: { id: nextCarId, isDeleted: false, status: targetCar.status },
-        data: { status: PrismaCarStatus.Booked, mileage: body.mileage, updatedBy: userId },
+        data: { status: PrismaCarStatus.Booked, mileage, updatedBy: userId },
       })
 
       if (targetCarUpdate.count === 0) {
@@ -52,11 +56,11 @@ export async function PATCH(
           dateStart: new Date(body.dateStart),
           dateEnd: new Date(body.dateEnd),
           dateCount: Number(body.dateCount ?? 0),
-          price: body.price,
-          dailyRate: body.dailyRate,
-          discountAmount: body.discountAmount ?? 0,
-          taxAmount: body.taxAmount ?? 0,
-          netAmount: body.totalAmount,
+          price: Number(body.price ?? 0),
+          dailyRate: Number(body.dailyRate ?? 0),
+          discountAmount: Number(body.discountAmount ?? 0),
+          taxAmount: Number(body.taxAmount ?? 0),
+          netAmount: Number(body.totalAmount ?? 0),
           remark: body.bookingRemark || null,
           status: body.bookingStatus,
           paymentImageId: body.bookingPaymentImagesId || null,
@@ -78,7 +82,7 @@ export async function PATCH(
       if (booking.carId !== nextCarId) {
         const releaseOld = await tx.car.updateMany({
           where: { id: booking.carId, isDeleted: false, status: PrismaCarStatus.Booked },
-          data: { status: PrismaCarStatus.Available, mileage: body.mileage, updatedBy: userId },
+          data: { status: PrismaCarStatus.Available, mileage, updatedBy: userId },
         })
         if (releaseOld.count === 0) {
           throw new Error('Car status changed by another user')
