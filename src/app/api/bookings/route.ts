@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         }
       }
 
-      if (car.status === 'Maintenance' || car.status === 'Unavailable' || car.status === 'Booked') {
+      if (car.status !== 'Available') {
         throw new Error('Car is not available for booking')
       }
 
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
 
       const carUpdate = await tx.car.updateMany({
         where: { id: carId, isDeleted: false, status: car.status },
-        data: { status: PrismaCarStatus.Booked, mileage: mileage, updatedBy: userId },
+        data: { status: PrismaCarStatus.Rented, mileage: mileage, updatedBy: userId },
       })
 
       if (carUpdate.count === 0) {

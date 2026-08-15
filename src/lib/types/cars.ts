@@ -6,9 +6,9 @@ export type CarStatus = PrismaCarStatus
 export const CarStatusOptions = [
   { value: PrismaCarStatus.Available, label: getStatusLabel(PrismaCarStatus.Available) },
   { value: PrismaCarStatus.Booked, label: getStatusLabel(PrismaCarStatus.Booked) },
-  { value: PrismaCarStatus.Maintenance, label: getStatusLabel(PrismaCarStatus.Maintenance) },
+  { value: PrismaCarStatus.Rented, label: getStatusLabel(PrismaCarStatus.Rented) },
   { value: PrismaCarStatus.Unavailable, label: getStatusLabel(PrismaCarStatus.Unavailable) },
-  { value: PrismaCarStatus.Reserved, label: getStatusLabel(PrismaCarStatus.Reserved) },
+  { value: PrismaCarStatus.ReturningSoon, label: getStatusLabel(PrismaCarStatus.ReturningSoon) },
 ] as const
 
 export type CarsRow = Prisma.CarGetPayload<{

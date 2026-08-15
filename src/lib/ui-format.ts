@@ -51,7 +51,7 @@ export function formatThaiDate(value?: Date | string | null) {
 export function getStatusLabel(status?: string | null) {
   const labels: Record<string, string> = {
     Active: "ใช้งาน",
-    Available: "พร้อมให้เช่า",
+    Available: "ว่าง",
     Booked: "จองแล้ว",
     Cancelled: "ยกเลิก",
     Confirmed: "ยืนยันแล้ว",
@@ -66,6 +66,8 @@ export function getStatusLabel(status?: string | null) {
     Reserved: "กำลังจอง",
     Rejected: "ถูกปฏิเสธ",
     Refunded: "คืนเงิน",
+    Rented: "มีคนเช่าอยู่",
+    ReturningSoon: "คนเช่ากำลังจะเลิกเช่าเร็วๆนี้",
     PartialPaid: "ชำระบางส่วน",
     Tax: "ภาษี",
     Unavailable: "ไม่พร้อมใช้",
@@ -95,8 +97,9 @@ export function getStatusBadgeClass(status?: string | null, className?: string) 
     ["pending", "maintenance"].includes(normalized) && "bg-amber-100 text-amber-700",
     ["booked", "reserved"].includes(normalized) && "bg-[#F4E7B0] text-[#4E2788]",
     ["completed", "complete", "refunded"].includes(normalized) && "bg-[#F4E7B0] text-[#4E2788]",
-    ["cancelled", "rejected", "failed", "unavailable"].includes(normalized) &&
-      "bg-red-100 text-red-700",
+    ["cancelled", "rejected", "failed", "unavailable"].includes(normalized) && "bg-red-100 text-red-700",
+    ["rented"].includes(normalized) && "bg-blue-100 text-blue-700",
+    ["returningsoon"].includes(normalized) && "bg-purple-100 text-purple-700",
     className
   );
 }

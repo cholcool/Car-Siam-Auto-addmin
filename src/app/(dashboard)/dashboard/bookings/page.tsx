@@ -2,8 +2,8 @@ import prisma from '@/lib/prisma'
 import { getCachedSession } from '@/lib/auth'
 import BookingsClient from './bookings-client'
 import { formatCompactNumber } from '@/lib/ui-format'
-import { Select, Button, Card, CardContent } from '@/components/ui'
-import { Search, BookOpen } from 'lucide-react'
+import { Select, Button, } from '@/components/ui'
+import { Search } from 'lucide-react'
 import { BookingStatusOptions, type DriverRow } from '@/lib/types'
 import { serializePrismaRows } from '@/lib/serialize'
 
@@ -268,30 +268,16 @@ export default async function BookingsPage({ searchParams }: PageProps) {
           </Button>
         </form>
 
-        {bookings.length === 0 && (
-          <Card>
-            <CardContent className="py-14 text-center">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-                <BookOpen className="h-7 w-7" aria-hidden="true" />
-              </div>
-              <h2 className="mt-5 text-xl font-extrabold text-slate-950">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</h2>
-              <p className="mt-2 text-sm font-semibold text-slate-500">ลองเปลี่ยนคำค้นหาหรือตัวกรองอีกครั้ง</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {bookings.length > 0 && (
-          <BookingsClient
-            initialBookings={initialBookings}
-            currentUserId={currentUserId}
-            users={usersOption}
-            displayName={displayName}
-            products={productsOption}
-            cars={carsOption}
-            drivers={driversOption}
-            initialDrivers={initialDrivers}
-          />
-        )}
+        <BookingsClient
+          initialBookings={initialBookings}
+          currentUserId={currentUserId}
+          users={usersOption}
+          displayName={displayName}
+          products={productsOption}
+          cars={carsOption}
+          drivers={driversOption}
+          initialDrivers={initialDrivers}
+        />
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm shadow-slate-200/60">

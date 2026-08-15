@@ -257,7 +257,7 @@ export default function BookingsDrawer({
     if (saving) return
     if (!editingId && lastReservedCarId) {
       try {
-        await setCarStatus(lastReservedCarId, 'Available', 'Reserved')
+        await setCarStatus(lastReservedCarId, 'Booked', 'Available')
       } catch {
         // ignore rollback errors when closing
       }
@@ -331,10 +331,10 @@ export default function BookingsDrawer({
 
     try {
       if (prevCarId && prevCarId !== nextCarId) {
-        await setCarStatus(prevCarId, 'Available', 'Reserved')
+        await setCarStatus(prevCarId, 'Available', 'Booked')
       }
       if (nextCarId) {
-        await setCarStatus(nextCarId, 'Reserved', 'Available')
+        await setCarStatus(nextCarId, 'Booked', 'Available')
         setLastReservedCarId(nextCarId)
       }
     } catch (err: any) {

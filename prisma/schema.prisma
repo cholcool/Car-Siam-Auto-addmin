@@ -13,9 +13,9 @@ generator client {
 enum CarStatus {
   Available
   Booked
-  Maintenance
+  Rented
+  ReturningSoon
   Unavailable
-  Reserved
 }
 
 enum BookingStatus {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Edit, Plus, X, ClipboardList, FileDown, UserPlus, Receipt } from 'lucide-react'
+import { Edit, Plus, X, ClipboardList, FileDown, UserPlus, Receipt, BookOpen } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -139,63 +139,75 @@ export default function BookingsClient({
   return (
     <div className="space-y-8">
 
-      <Card>
-        <CardContent className="p-6 sm:p-8">
-          <div className="overflow-x-auto">
-            <table className="mt-6 w-full min-w-285 text-left">
-              <thead>
-                <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
-                  <th className="px-3 py-3">ผู้ใช้</th>
-                  <th className="px-3 py-3">ข้อมูลลูกค้า</th>
-                  <th className="px-3 py-3">รายการรถ</th>
-                  <th className="px-3 py-3">ข้อมูลบริการ</th>
-                  <th className="px-3 py-3">วันรับรถ - วันคืนรถ</th>
-                  <th className="px-3 py-3 text-right">ยอดรวมสุทธิ</th>
-                  <th className="px-3 py-3 text-right">คงเหลือ</th>
-                  <th className="px-3 py-3">สถานะ</th>
-                  <th className="w-10 text-center sticky bg-white right-0 p-3 drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]">จัดการ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking) => {
-                  const paidAmount = (booking.payments ?? []).reduce((sum: number, payment: any) => sum + Number(payment.amount ?? 0), 0)
-                  const remainingAmount = Math.max(Number(booking.netAmount ?? 0) - paidAmount, 0)
+      {bookings.length === 0 ? (
+        <Card>
+          <CardContent className="py-14 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+              <BookOpen className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <h2 className="mt-5 text-xl font-extrabold text-slate-950">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-500">ลองเปลี่ยนคำค้นหาหรือตัวกรองอีกครั้ง</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="p-6 sm:p-8">
+            <div className="overflow-x-auto">
+              <table className="mt-6 w-full min-w-285 text-left">
+                <thead>
+                  <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
+                    <th className="px-3 py-3">ผู้ใช้</th>
+                    <th className="px-3 py-3">ข้อมูลลูกค้า</th>
+                    <th className="px-3 py-3">รายการรถ</th>
+                    <th className="px-3 py-3">ข้อมูลบริการ</th>
+                    <th className="px-3 py-3">วันรับรถ - วันคืนรถ</th>
+                    <th className="px-3 py-3 text-right">ยอดรวมสุทธิ</th>
+                    <th className="px-3 py-3 text-right">คงเหลือ</th>
+                    <th className="px-3 py-3">สถานะ</th>
+                    <th className="w-10 text-center sticky bg-white right-0 p-3 drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((booking) => {
+                    const paidAmount = (booking.payments ?? []).reduce((sum: number, payment: any) => sum + Number(payment.amount ?? 0), 0)
+                    const remainingAmount = Math.max(Number(booking.netAmount ?? 0) - paidAmount, 0)
 
-                  return (
-                    <tr key={booking.id} className="border-b border-slate-100 text-sm font-medium text-slate-700">
-                      <td className="px-3 py-4 font-bold text-slate-950">{displayName}</td>
-                      <td className="px-3 py-4">
-                        <div className="font-bold text-slate-950">{booking.driver?.fullName ?? ''}</div>
-                        <div className="text-xs font-semibold text-slate-500">สัญญา {booking.contractNo ?? '-'}</div>
-                      </td>
-                      <td className="px-3 py-4">
-                        <div>{`${booking.car?.brand?.name ?? ''} ${booking.car?.model ?? ''}`.trim()}</div>
-                        <div className="text-xs text-slate-500">{booking.car?.license ?? '-'}</div>
-                      </td>
-                      <td className="px-3 py-4">
-                        <div>{booking.product?.name.trim() || '-'}</div>
-                        <div className="text-xs text-slate-500">{formatBaht(booking.product?.price)}</div>
-                      </td>
-                      <td className="px-3 py-4">{formatThaiDate(booking.dateStart)} - {formatThaiDate(booking.dateEnd)}</td>
-                      <td className="px-3 py-4 text-right font-semibold">{formatBaht(booking.netAmount)}</td>
-                      <td className="px-3 py-4 text-right font-semibold">{formatBaht(remainingAmount)}</td>
-                      <td className="px-3 py-4"><Badge className={getStatusBadgeClass(booking.status)}>{getStatusLabel(booking.status)}</Badge></td>
-                      <td className="sticky right-0 bg-white p-3 border-l drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]">
-                        <div className="flex items-center gap-2">
-                          <Button size="icon-sm" variant="outline" onClick={() => openFile(booking)} className='gap-2'><FileDown className="h-4 w-4" /></Button>
-                          <Button size="icon-sm" variant="outline" onClick={() => openDeposit(booking)} className='gap-2'><Receipt className="h-4 w-4" /></Button>
-                          <Button size="icon-sm" variant="outline" onClick={() => openEdit(booking)} className="gap-2"><Edit className="h-4 w-4" /></Button>
-                          <AlertDialogDestructive onClick={() => remove(booking.id)} variant={'destructive'} />
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+                    return (
+                      <tr key={booking.id} className="border-b border-slate-100 text-sm font-medium text-slate-700">
+                        <td className="px-3 py-4 font-bold text-slate-950">{displayName}</td>
+                        <td className="px-3 py-4">
+                          <div className="font-bold text-slate-950">{booking.driver?.fullName ?? ''}</div>
+                          <div className="text-xs font-semibold text-slate-500">สัญญา {booking.contractNo ?? '-'}</div>
+                        </td>
+                        <td className="px-3 py-4">
+                          <div>{`${booking.car?.brand?.name ?? ''} ${booking.car?.model ?? ''}`.trim()}</div>
+                          <div className="text-xs text-slate-500">{booking.car?.license ?? '-'}</div>
+                        </td>
+                        <td className="px-3 py-4">
+                          <div>{booking.product?.name.trim() || '-'}</div>
+                          <div className="text-xs text-slate-500">{formatBaht(booking.product?.price)}</div>
+                        </td>
+                        <td className="px-3 py-4">{formatThaiDate(booking.dateStart)} - {formatThaiDate(booking.dateEnd)}</td>
+                        <td className="px-3 py-4 text-right font-semibold">{formatBaht(booking.netAmount)}</td>
+                        <td className="px-3 py-4 text-right font-semibold">{formatBaht(remainingAmount)}</td>
+                        <td className="px-3 py-4"><Badge className={getStatusBadgeClass(booking.status)}>{getStatusLabel(booking.status)}</Badge></td>
+                        <td className="sticky right-0 bg-white p-3 border-l drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]">
+                          <div className="flex items-center gap-2">
+                            <Button size="icon-sm" variant="outline" onClick={() => openFile(booking)} className='gap-2'><FileDown className="h-4 w-4" /></Button>
+                            <Button size="icon-sm" variant="outline" onClick={() => openDeposit(booking)} className='gap-2'><Receipt className="h-4 w-4" /></Button>
+                            <Button size="icon-sm" variant="outline" onClick={() => openEdit(booking)} className="gap-2"><Edit className="h-4 w-4" /></Button>
+                            <AlertDialogDestructive onClick={() => remove(booking.id)} variant={'destructive'} />
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {menuOpen && (
         <button

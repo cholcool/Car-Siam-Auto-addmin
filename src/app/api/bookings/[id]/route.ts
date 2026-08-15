@@ -39,7 +39,7 @@ export async function PATCH(
 
       const targetCarUpdate = await tx.car.updateMany({
         where: { id: nextCarId, isDeleted: false, status: targetCar.status },
-        data: { status: PrismaCarStatus.Booked, mileage, updatedBy: userId },
+        data: { status: PrismaCarStatus.Rented, mileage, updatedBy: userId },
       })
 
       if (targetCarUpdate.count === 0) {
@@ -81,7 +81,7 @@ export async function PATCH(
 
       if (booking.carId !== nextCarId) {
         const releaseOld = await tx.car.updateMany({
-          where: { id: booking.carId, isDeleted: false, status: PrismaCarStatus.Booked },
+          where: { id: booking.carId, isDeleted: false, status: PrismaCarStatus.Rented },
           data: { status: PrismaCarStatus.Available, mileage, updatedBy: userId },
         })
         if (releaseOld.count === 0) {
