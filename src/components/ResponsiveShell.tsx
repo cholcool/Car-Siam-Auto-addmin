@@ -8,7 +8,7 @@ import {
   SidebarTrigger, 
   useSidebar,
 } from "@/components/ui"
-import { isMenuActive, isSettingMenuPath, type MenuItem } from "@/lib/rbac/menus";
+import { isMenuActive, type MenuItem } from "@/lib/rbac/menus";
 import { usePathname } from "next/navigation";
 
 function ResponsiveHeader({
@@ -20,7 +20,6 @@ function ResponsiveHeader({
 }) {
   const { openMobile, setOpenMobile } = useSidebar();
   const pathname = usePathname();
-  const primaryMenus = menuItems.filter((item) => !isSettingMenuPath(item.href));
 
   return (
     <> 
@@ -34,7 +33,7 @@ function ResponsiveHeader({
           <Menu className="h-5 w-5" />
         </button>
         <span className="text-base font-bold text-slate-950">
-          {primaryMenus.find((item) => isMenuActive(pathname, item.href))?.title ?? "Dashboard"}
+          {menuItems.find((item) => isMenuActive(pathname, item.href))?.title ?? "Dashboard"}
         </span>
       </header>
 
