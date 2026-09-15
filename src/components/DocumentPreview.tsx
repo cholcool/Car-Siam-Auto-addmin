@@ -28,7 +28,7 @@ export default function DocumentPreview({
   return (
     <div className="space-y-6">
       <header className="print:hidden flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
+        <div className='hidden md:block'>
           <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">
             {mode === 'contract' ? 'สัญญาค่าบริการ' : 'ใบเสร็จรับเงิน'}
           </h1>

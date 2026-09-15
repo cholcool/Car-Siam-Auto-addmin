@@ -2,10 +2,10 @@ import prisma from '@/lib/prisma'
 import { getCachedSession } from '@/lib/auth'
 import BookingsClient from './bookings-client'
 import { formatCompactNumber } from '@/lib/ui-format'
-import { Select, Button, } from '@/components/ui'
-import { Search } from 'lucide-react'
+import { Button, } from '@/components/ui'
 import { BookingStatusOptions, type DriverRow } from '@/lib/types'
 import { serializePrismaRows } from '@/lib/serialize'
+import BookingsFilters from './filters'
 
 export const dynamic = 'force-dynamic'
 
@@ -201,7 +201,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
     <>
       <div className="space-y-8">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
+          <div className='hidden md:block'>
             <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">บันทึกรายการ</h1>
           </div>
 
@@ -213,60 +213,16 @@ export default async function BookingsPage({ searchParams }: PageProps) {
           </div>
         </header>
 
-        <form
-          method="get"
-          action="/dashboard/bookings"
-          className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 md:grid-cols-3 xl:grid-cols-[200px_200px_auto_200px_200px_150px] overflow-auto"
-        >
-          <Select name="drivers" defaultValue={driversParam}>
-            <option value="">ลูกค้าทั้งหมด</option>
-            {driversOption.map((rows: any) => (
-              <option key={rows.value} value={rows.value}>
-                {rows.label}
-              </option>
-            ))}
-          </Select>
-
-          <Select name="cars" defaultValue={carsParam}>
-            <option value="">รถทั้งหมด</option>
-            {carsOption.map((rows: any) => (
-              <option key={rows.value} value={rows.value}>
-                {rows.label}
-              </option>
-            ))}
-          </Select>
-
-          <Select name="products" defaultValue={productsParam}>
-            <option value="">บริการทั้งหมด</option>
-            {productsOption.map((rows: any) => (
-              <option key={rows.value} value={rows.value}>
-                {rows.label}
-              </option>
-            ))}
-          </Select>
-
-          <Select name="status" defaultValue={status}>
-            <option value="">ทุกสถานะ</option>
-            {BookingStatusOptions.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </Select>
-
-          <Select name="sort" defaultValue={sort}>
-            <option value="newest">ล่าสุด</option>
-            <option value="most">ยอดรวมสุทธิมากสุด</option>
-            <option value="least">ยอดรวมสุทธิน้อยสุด</option>
-            <option value="dateStart">เรียงตามวันรับรถ</option>
-            <option value="dateEnd">เรียงตามวันคืนรถ</option>
-          </Select>
-
-          <Button type="submit" className="h-full min-h-8 md:col-start-3 xl:col-auto justify-self-end">
-            <Search className="mr-2 h-4 w-4" />
-            ค้นหา
-          </Button>
-        </form>
+        <BookingsFilters 
+          initialDrivers={driversParam}
+          initialCars={carsParam}
+          initialProducts={productsParam}
+          initialStatus={status}
+          initialSort={sort}
+          driversOption={driversOption}
+          carsOption={carsOption}
+          productsOption={productsOption}
+        />
 
         <BookingsClient
           initialBookings={initialBookings}

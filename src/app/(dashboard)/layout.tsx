@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const menuItems = toMenuItems(menus);
 
   return (
-    <ResponsiveShell sidebar={<MenuAppSidebar user={session?.user ?? null} menuItems={menuItems} />}>
+    <ResponsiveShell sidebar={<MenuAppSidebar user={session?.user ?? null} menuItems={menuItems} />} menuItems={menuItems}>
       {children}
     </ResponsiveShell>
   );

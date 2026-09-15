@@ -87,10 +87,6 @@ export async function POST(request: Request) {
         }
       }
 
-      if (car.status !== 'Available') {
-        throw new Error('Car is not available for booking')
-      }
-
       const created = await tx.booking.create({
         data: {
           productId,
@@ -144,9 +140,6 @@ export async function POST(request: Request) {
     if (message === 'User not found') return NextResponse.json({ message }, { status: 404 })
     if (message === 'Product not found') return NextResponse.json({ message }, { status: 404 })
     if (message === 'Driver not found') return NextResponse.json({ message }, { status: 404 })
-    if (message === 'Car is not available for booking') {
-      return NextResponse.json({ message: 'รถคันนี้ไม่พร้อมสำหรับการจองแล้ว กรุณารีเฟรชข้อมูลรถ' }, { status: 409 })
-    }
     if (message === 'Car status changed by another user') {
       return NextResponse.json({ message: 'รถคันนี้ถูกเปลี่ยนสถานะโดยผู้ใช้อื่น กรุณารีเฟรชข้อมูลรถ' }, { status: 409 })
     }

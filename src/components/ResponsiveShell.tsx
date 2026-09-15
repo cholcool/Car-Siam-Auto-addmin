@@ -8,17 +8,21 @@ import {
   SidebarTrigger, 
   useSidebar,
 } from "@/components/ui"
+import { isMenuActive, isSettingMenuPath, type MenuItem } from "@/lib/rbac/menus";
 
 function ResponsiveHeader({
   sidebar,
+  menuItems,
 }: {
   sidebar: React.ReactNode;
+  menuItems: MenuItem[];
 }) {
   const { openMobile, setOpenMobile } = useSidebar()
+  const primaryMenus = menuItems.filter((item) => !isSettingMenuPath(item.href))
 
   return (
     <> 
-      <header className="flex lg:hidden sticky top-0 z-30 h-16 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur">
+      <header className="flex lg:hidden sticky top-0 z-30 h-16 items-center gap-3 border-b border-slate-200 px-4 backdrop-blur">
         <button
           type="button"
           aria-label="Open sidebar"
@@ -27,7 +31,9 @@ function ResponsiveHeader({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="text-base font-bold text-slate-950">Car Siam Auto Admin</span>
+        <span className="text-base font-bold text-slate-950">
+          {primaryMenus.find((item) => isMenuActive(window.location.pathname, item.href))?.title ?? "Dashboard"}
+        </span>
       </header>
 
       <div className={`fixed inset-0 z-40 lg:hidden ${openMobile ? "" : "pointer-events-none"}`} slot="mobile">
@@ -61,16 +67,18 @@ function ResponsiveHeader({
 export default function ResponsiveShell({
   children,
   sidebar,
+  menuItems,
 }: {
   children: React.ReactNode;
   sidebar: React.ReactNode;
+  menuItems: MenuItem[];
 }) {
   // const [open, setOpen] = React.useState(false);
 
   return (
     <SidebarProvider className="bg-[#f6f7f9]" defaultOpen={true}>
       <div className="min-h-screen bg-[#f6f7f9] w-full" slot="main-screen">
-        <ResponsiveHeader sidebar={sidebar} />
+        <ResponsiveHeader sidebar={sidebar} menuItems={menuItems} />
 
         <div className="flex min-h-screen" data-slot="sidebar-wrapper">
           <section className="hidden lg:flex" data-slot="sidebar" slot="desktop">

@@ -2,8 +2,7 @@ import prisma from '@/lib/prisma'
 import DriverPageClient from './driver-client'
 import { DriverRow } from '@/lib/types' 
 import { formatCompactNumber } from '@/lib/ui-format'
-import { Input, Select, Button } from '@/components/ui'
-import { Search } from 'lucide-react'
+import DriverFilters from './filters'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,8 +19,8 @@ export default async function DriverPage({ searchParams }: PageProps) {
 
   if (inputSearch) {
     where.OR = [
-      { fullName: { contains: inputSearch, mode: 'insensitive' } },
-      { phone: { contains: inputSearch, mode: 'insensitive' } },
+      { fullName: { contains: inputSearch } },
+      { phone: { contains: inputSearch } },
     ]
   }
 
@@ -117,7 +116,7 @@ export default async function DriverPage({ searchParams }: PageProps) {
     <>
       <div className="space-y-8">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
+          <div className='hidden md:block'>
             <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">ข้อมูลลูกค้า</h1>
           </div>
   
@@ -129,27 +128,10 @@ export default async function DriverPage({ searchParams }: PageProps) {
           </div>
         </header>
   
-        <form
-          method="get"
-          action="/dashboard/driver"
-          className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 md:grid-cols-3 xl:grid-cols-[minmax(220px,1fr)_180px_160px_auto] overflow-auto"
-        >
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input name="inputSearch" defaultValue={inputSearch} placeholder="ค้นหาชื่อ เบอร์โทร" className="pl-10" />
-          </div>
-  
-          <Select name="sort" defaultValue={sort}>
-            <option value="newest">ล่าสุด</option>
-            <option value="fullName">เรียงตามชื่อ</option>
-            <option value="phone">เรียงตามเบอร์โทร</option>
-          </Select>
-  
-          <Button type="submit" className="h-full min-h-8 md:col-start-3 xl:col-auto justify-self-end">
-            <Search className="mr-2 h-4 w-4" />
-            ค้นหา
-          </Button>
-        </form>
+        <DriverFilters 
+          initialSearch={inputSearch}
+          initialSort={sort}
+        />
 
         <DriverPageClient initialDrivers={rows} />
       </div>

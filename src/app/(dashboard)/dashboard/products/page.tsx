@@ -3,9 +3,8 @@ import { toNumber } from '@/lib/ui-format'
 import ProductsClient from './products-client'
 import { ProductRow, ProductsStatusOptions } from '@/lib/types'
 import { formatCompactNumber } from '@/lib/ui-format'
-import { Search } from 'lucide-react'
-import { Input, Select, Button } from '@/components/ui'
 import Link from 'next/link'
+import ProductsFilters from './filters'
 
 type PageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>
@@ -25,9 +24,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   if (inputSearch) {
     where.OR = [
-      { name: { contains: inputSearch, mode: 'insensitive' } },
-      { description: { contains: inputSearch, mode: 'insensitive' } },
-      { remark: { contains: inputSearch, mode: 'insensitive' } },
+      { name: { contains: inputSearch } },
+      { description: { contains: inputSearch } },
+      { remark: { contains: inputSearch } },
     ]
   }
 
@@ -82,7 +81,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     <>
       <div className="space-y-8">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
+          <div className='hidden md:block'>
             <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">ข้อมูลบริการ</h1>
           </div>
 
@@ -94,39 +93,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           </div>
         </header>
 
-        <form
-          method="get"
-          action="/dashboard/products"
-          className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60 md:grid-cols-[minmax(180px,1fr)_180px_160px_auto] overflow-auto"
-        >
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input name="inputSearch" defaultValue={inputSearch} placeholder="ค้นหาข้อมูลบริการ" className="pl-10" />
-          </div>
-
-          <Select name="status" defaultValue={status}>
-            <option value="">ทุกสถานะ</option>
-            {ProductsStatusOptions.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </Select>
-          
-          <Select name="sort" defaultValue={sort}>
-            <option value="newest">ล่าสุด</option>
-            <option value="dateStart">วันที่เริ่ม</option>
-            <option value="dateEnd">วันที่สิ้นสุด</option>
-            <option value="name">ชื่อบริการ</option>
-            <option value="price">ราคาน้อย</option>
-            <option value="priceHigh">ราคามาก</option>
-          </Select>
-
-          <Button type="submit" className="h-full min-h-8 md:col-start-4 xl:col-auto justify-self-end">
-            <Search className="mr-2 h-4 w-4" />
-            ค้นหา
-          </Button>
-        </form>
+        <ProductsFilters 
+          initialSearch={inputSearch}
+          initialStatus={status}
+          initialSort={sort}
+        />
 
         <ProductsClient initialProducts={rows} />
 
