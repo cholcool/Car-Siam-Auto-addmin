@@ -9,6 +9,7 @@ import {
   useSidebar,
 } from "@/components/ui"
 import { isMenuActive, isSettingMenuPath, type MenuItem } from "@/lib/rbac/menus";
+import { usePathname } from "next/navigation";
 
 function ResponsiveHeader({
   sidebar,
@@ -17,8 +18,9 @@ function ResponsiveHeader({
   sidebar: React.ReactNode;
   menuItems: MenuItem[];
 }) {
-  const { openMobile, setOpenMobile } = useSidebar()
-  const primaryMenus = menuItems.filter((item) => !isSettingMenuPath(item.href))
+  const { openMobile, setOpenMobile } = useSidebar();
+  const pathname = usePathname();
+  const primaryMenus = menuItems.filter((item) => !isSettingMenuPath(item.href));
 
   return (
     <> 
@@ -32,7 +34,7 @@ function ResponsiveHeader({
           <Menu className="h-5 w-5" />
         </button>
         <span className="text-base font-bold text-slate-950">
-          {primaryMenus.find((item) => isMenuActive(window.location.pathname, item.href))?.title ?? "Dashboard"}
+          {primaryMenus.find((item) => isMenuActive(pathname, item.href))?.title ?? "Dashboard"}
         </span>
       </header>
 
