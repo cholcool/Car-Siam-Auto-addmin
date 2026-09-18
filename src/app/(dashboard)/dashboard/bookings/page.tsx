@@ -21,6 +21,7 @@ export default async function BookingsPage({ searchParams }: PageProps) {
   const productsParam = typeof params.products === 'string' ? params.products.trim() : ''
   const status = BookingStatusOptions.find(status => status.value === statusParam)?.value ?? ''
   const sort = typeof params.sort === 'string' ? params.sort : 'newest'
+  const todayParam = typeof params.today === 'string' ? params.today : ''
 
   const where: any = { isDeleted: false }
 
@@ -28,6 +29,16 @@ export default async function BookingsPage({ searchParams }: PageProps) {
   if (driversParam) where.driver = { id: driversParam }
   if (carsParam) where.car = { id: carsParam }
   if (productsParam) where.product = { id: productsParam }
+
+  if (todayParam === '1') {
+    // "รายการเช่าวันนี้" quick filter from the dashboard stat card — bookings
+    // that start today (Asia/Bangkok).
+    const startOfToday = new Date()
+    startOfToday.setHours(0, 0, 0, 0)
+    const endOfToday = new Date(startOfToday)
+    endOfToday.setDate(endOfToday.getDate() + 1)
+    where.dateStart = { gte: startOfToday, lt: endOfToday }
+  }
 
   const orderBy: any =
     sort === 'most'

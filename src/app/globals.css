@@ -45,39 +45,73 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Design tokens aligned with the approved mobile mockup
+ * (car-siam-mobile-mockup-offline.html) — see
+ * claude/design-system-alignment-report.md in the project for the
+ * full palette/typography/shadow reference this is derived from.
+ */
 :root {
-  --primary: oklch(0.49 0.18 296);
-  --background: oklch(0.985 0.01 90);
-  --foreground: oklch(0.215 0.03 286);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.215 0.03 286);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.215 0.03 286);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.955 0.03 86);
-  --secondary-foreground: oklch(0.29 0.08 291);
-  --muted: oklch(0.965 0.01 90);
-  --muted-foreground: oklch(0.52 0.03 286);
-  --accent: oklch(0.955 0.03 86);
-  --accent-foreground: oklch(0.29 0.08 291);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.9 0.01 90);
-  --input: oklch(0.9 0.01 90);
-  --ring: oklch(0.62 0.16 296);
-  --chart-1: oklch(0.62 0.16 296);
-  --chart-2: oklch(0.78 0.12 86);
-  --chart-3: oklch(0.54 0.16 300);
-  --chart-4: oklch(0.7 0.14 60);
-  --chart-5: oklch(0.44 0.08 286);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0.01 90);
-  --sidebar-foreground: oklch(0.215 0.03 286);
-  --sidebar-primary: oklch(0.49 0.18 296);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.955 0.03 86);
-  --sidebar-accent-foreground: oklch(0.29 0.08 291);
-  --sidebar-border: oklch(0.9 0.01 90);
-  --sidebar-ring: oklch(0.62 0.16 296);
+  --primary: #6D28D9;
+  --primary-foreground: #FFFFFF;
+
+  --background: #FAFAF9;
+  --foreground: #1C1917;
+
+  --card: #FFFFFF;
+  --card-foreground: #1C1917;
+  --popover: #FFFFFF;
+  --popover-foreground: #1C1917;
+
+  --secondary: #F5F3FF;
+  --secondary-foreground: #5B21B6;
+
+  --muted: #F0EFED;
+  --muted-foreground: #78716C;
+
+  --accent: #F5F3FF;
+  --accent-foreground: #5B21B6;
+
+  --destructive: #DC2626;
+
+  --border: #E7E5E4;
+  --input: #E7E5E4;
+  --ring: #6D28D9;
+
+  --chart-1: #6D28D9;
+  --chart-2: #2563EB;
+  --chart-3: #16A34A;
+  --chart-4: #D97706;
+  --chart-5: #78716C;
+
+  --radius: 0.75rem;
+
+  --sidebar: #6D28D9;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #6D28D9;
+  --sidebar-accent: #5B21B6;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.15);
+  --sidebar-ring: #FFFFFF;
+
+  /* Status tokens — mirror the badge colors approved in the mockup */
+  --status-pending-fg: #B45309;
+  --status-pending-bg: #FFFBEB;
+  --status-inprogress-fg: #1D4ED8;
+  --status-inprogress-bg: #EFF6FF;
+  --status-completed-fg: #15803D;
+  --status-completed-bg: #F0FDF4;
+  --status-available-fg: #15803D;
+  --status-available-bg: #F0FDF4;
+  --status-booked-fg: #B45309;
+  --status-booked-bg: #FFFBEB;
+  --status-maintenance-fg: #78716C;
+  --status-maintenance-bg: #F5F5F4;
+  --status-returning-fg: #C2410C;
+  --status-returning-bg: #FFF7ED;
+  --status-cancelled-fg: #B91C1C;
+  --status-cancelled-bg: #FEF2F2;
 }
 
 .dark {
@@ -124,12 +158,8 @@ html, body, #__next {
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(111, 59, 183, 0.1), transparent 32%),
-    radial-gradient(circle at top right, rgba(224, 178, 31, 0.12), transparent 28%),
-    #fbf9f4;
-  color: #231433;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 @layer base {

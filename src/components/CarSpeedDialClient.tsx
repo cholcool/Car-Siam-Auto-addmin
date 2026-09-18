@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ComponentType } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { BadgePlus, Car, Plus, Shapes, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -68,11 +69,20 @@ const items: SpeedDialItem[] = [
 ]
 
 export default function CarSpeedDial({ vehicleTypes, brands, cars }: CarSpeedDialProps) {
+  const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
   const [showCarModal, setShowCarModal] = useState(false)
   const [showBrandModal, setShowBrandModal] = useState(false)
   const [showVehicleTypeModal, setShowVehicleTypeModal] = useState(false)
   const [showMaintenanceModal, setShowMaintenanceModal] = useState(false)
+
+  // Auto-open the car create drawer when arriving from the dashboard's
+  // "เช่ารถใหม่" / "เพิ่มรถ" quick actions (/dashboard/cars?create=1).
+  useEffect(() => {
+    if (searchParams.get('create') === '1') {
+      setShowCarModal(true)
+    }
+  }, [searchParams])
   const handleMenuClick = (item: SpeedDialItem) => {
     {
       if (item.key === 'cars') {

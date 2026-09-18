@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Plus, Contact, X, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,6 +18,7 @@ import {
 
 
 export default function DriverPageClient({ initialDrivers }: { initialDrivers: DriverRow[] }) {
+  const searchParams = useSearchParams()
   const [drivers, setDrivers] = useState(initialDrivers)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -38,6 +40,15 @@ export default function DriverPageClient({ initialDrivers }: { initialDrivers: D
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
+
+  // Auto-open the create drawer when arriving from the dashboard's
+  // "เพิ่มลูกค้า" quick action (/dashboard/driver?create=1).
+  useEffect(() => {
+    if (searchParams.get('create') === '1') {
+      openCreate()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   function openCreate() {
     setEditingId(null)

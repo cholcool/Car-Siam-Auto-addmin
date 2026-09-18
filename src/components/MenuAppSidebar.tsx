@@ -43,8 +43,8 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
 
   return (
     <Sidebar collapsible="icon" className="fixed">
-      <aside className="flex flex-col h-full relative bg-linear-to-b from-[#6F3BB7] to-[#4E2788] text-white shadow-xl shadow-[#4E2788]/25">
-        <SidebarTrigger className="lg:flex hidden absolute -right-8 top-3 ml-auto bg-linear-to-b from-[#6F3BB7] to-[#4E2788] text-white shadow-xl shadow-[#4E2788]/25" slot="desktop" />
+      <aside className="flex flex-col h-full relative bg-[#6D28D9] text-white shadow-xl shadow-[#4E2788]/20">
+        <SidebarTrigger className="lg:flex hidden absolute -right-8 top-3 ml-auto bg-[#6D28D9] text-white shadow-xl shadow-[#4E2788]/20" slot="desktop" />
 
         <SidebarHeader>
           <div className="border-b border-white/15 py-9">
@@ -54,7 +54,7 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
               </div>
               <div className="group-data-[collapsible=icon]:hidden">
                 <div className="font-bold leading-tight">Car Siam Auto Admin</div>
-                <div className="mt-0.5 text-sm font-semibold text-[#F4E7B0]">ระบบจัดการเช่ารถ</div>
+                <div className="mt-0.5 text-sm font-semibold text-white/70">ระบบจัดการเช่ารถ</div>
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
                           "flex items-center gap-4 rounded-xl text-base font-bold transition-colors",
                           active
                             ? "bg-white/16 text-white shadow-lg shadow-black/10"
-                            : "text-[#F4E7B0] hover:bg-white/10 hover:text-white"
+                            : "text-white/70 hover:bg-white/10 hover:text-white"
                         )}
                       >
                         <Icon aria-hidden="true" />
@@ -135,8 +135,8 @@ export default function MenuAppSidebar({ user, menuItems }: { user?: SidebarUser
                                   className={cn(
                                     "flex transition-colors",
                                     active
-                                      ? "bg-linear-to-b from-[#6F3BB7] to-[#4E2788] text-white shadow-lg shadow-black/10 hover:text-white"
-                                      : "text-[#000000] hover:bg-white/10 hover:text-white"
+                                      ? "bg-[#6D28D9] text-white shadow-lg shadow-black/10 hover:text-white"
+                                      : "text-slate-900 hover:bg-[#6D28D9]/10 hover:text-[#6D28D9]"
                                   )}
                                 >
                                   <SidebarMenuButton asChild className="p-0 m-0">

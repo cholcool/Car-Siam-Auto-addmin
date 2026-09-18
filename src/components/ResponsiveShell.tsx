@@ -54,7 +54,7 @@ function ResponsiveHeader({
             <X className="h-3 w-3" />
           </button>
 
-          <SidebarTrigger className={`${openMobile ? "flex" : "hidden"} absolute -right-8 top-3 z-60 ml-auto bg-linear-to-b from-[#6F3BB7] to-[#4E2788] text-white shadow-xl shadow-[#4E2788]/25`} />
+          <SidebarTrigger className={`${openMobile ? "flex" : "hidden"} absolute -right-8 top-3 z-60 ml-auto bg-[#6D28D9] text-white shadow-xl shadow-[#4E2788]/20`} />
 
           <section data-slot="sidebar" slot="mobile">
             {sidebar}
@@ -77,8 +77,8 @@ export default function ResponsiveShell({
   // const [open, setOpen] = React.useState(false);
 
   return (
-    <SidebarProvider className="bg-[#f6f7f9]" defaultOpen={true}>
-      <div className="min-h-screen bg-[#f6f7f9] w-full" slot="main-screen">
+    <SidebarProvider className="bg-background" defaultOpen={true}>
+      <div className="min-h-screen bg-background w-full" slot="main-screen">
         <ResponsiveHeader sidebar={sidebar} menuItems={menuItems} />
 
         <div className="flex min-h-screen" data-slot="sidebar-wrapper">
@@ -89,7 +89,7 @@ export default function ResponsiveShell({
           <SidebarInset
             data-slot="sidebar-inset"
             slot="body"
-            className="flex min-h-screen min-w-0 flex-1 flex-col bg-[#f6f7f9] transition-[margin-left,width] duration-200 ease-linear md:peer-data-[state=collapsed]:ml-12 lg:pl-0"
+            className="flex min-h-screen min-w-0 flex-1 flex-col bg-background transition-[margin-left,width] duration-200 ease-linear md:peer-data-[state=collapsed]:ml-12 lg:pl-0"
           >
             <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-10">{children}</main>
           </SidebarInset>

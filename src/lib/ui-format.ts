@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
 export const appSurfaceClass =
-  "rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60";
+  "rounded-2xl border border-[#E7E5E4] bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_8px_20px_rgba(28,25,23,0.06)]";
 
 export const appInputClass =
-  "h-11 rounded-xl border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-900 shadow-sm shadow-slate-200/50 outline-none transition-colors placeholder:text-slate-400 focus-visible:border-[#6F3BB7] focus-visible:ring-2 focus-visible:ring-[#6F3BB7]/20";
+  "h-11 rounded-xl border border-[#E7E5E4] bg-white px-3.5 text-sm font-medium text-[#1C1917] shadow-sm outline-none transition-colors placeholder:text-[#A8A29E] focus-visible:border-[#6D28D9] focus-visible:ring-2 focus-visible:ring-[#6D28D9]/20";
 
 export function toNumber(value: unknown) {
   if (typeof value === "number") return value;
@@ -58,7 +58,7 @@ export function getStatusLabel(status?: string | null) {
     Completed: "เสร็จสิ้น",
     Failed: "ล้มเหลว",
     InActive: "ไม่ใช้งาน",
-    InProgress: "กำลังดำเนินการ",
+    InProgress: "กำลังเช่า",
     Insurance: "ประกันภัย",
     Maintenance: "บำรุงรักษา",
     Paid: "ชำระเงินแล้ว",
@@ -67,7 +67,7 @@ export function getStatusLabel(status?: string | null) {
     Rejected: "ถูกปฏิเสธ",
     Refunded: "คืนเงิน",
     Rented: "มีคนเช่าอยู่",
-    ReturningSoon: "คนเช่ากำลังจะเลิกเช่าเร็วๆนี้",
+    ReturningSoon: "ใกล้คืนรถ",
     PartialPaid: "ชำระบางส่วน",
     Tax: "ภาษี",
     Unavailable: "ไม่พร้อมใช้",
@@ -87,19 +87,66 @@ export function getNotificationLabel(status?: string | null) {
   return status ? labels[status] ?? status : "Unknown";
 }
 
-export function getStatusBadgeClass(status?: string | null, className?: string) {
+/**
+ * Status → color-group mapping, aligned with the status pill palette in
+ * the approved mobile mockup (see claude/design-system-alignment-report.md,
+ * section 2.1). Every group renders as `text-<fg> bg-<bg>` pill.
+ */
+type StatusColorGroup =
+  | "pending"
+  | "inprogress"
+  | "completed"
+  | "available"
+  | "booked"
+  | "maintenance"
+  | "returning"
+  | "cancelled";
+
+const STATUS_GROUP_MAP: Record<string, StatusColorGroup> = {
+  pending: "pending",
+  reserved: "pending",
+  booked: "booked",
+  confirmed: "inprogress",
+  inprogress: "inprogress",
+  rented: "inprogress",
+  active: "available",
+  available: "available",
+  paid: "completed",
+  completed: "completed",
+  complete: "completed",
+  refunded: "completed",
+  maintenance: "maintenance",
+  inactive: "maintenance",
+  returningsoon: "returning",
+  partialpaid: "returning",
+  cancelled: "cancelled",
+  rejected: "cancelled",
+  failed: "cancelled",
+  unavailable: "cancelled",
+};
+
+const STATUS_GROUP_CLASS: Record<StatusColorGroup, string> = {
+  pending: "text-[#B45309] bg-[#FFFBEB]",
+  inprogress: "text-[#1D4ED8] bg-[#EFF6FF]",
+  completed: "text-[#15803D] bg-[#F0FDF4]",
+  available: "text-[#15803D] bg-[#F0FDF4]",
+  booked: "text-[#B45309] bg-[#FFFBEB]",
+  maintenance: "text-[#78716C] bg-[#F5F5F4]",
+  returning: "text-[#C2410C] bg-[#FFF7ED]",
+  cancelled: "text-[#B91C1C] bg-[#FEF2F2]",
+};
+
+export function getStatusColorGroup(status?: string | null): StatusColorGroup {
   const normalized = (status ?? "").toLowerCase().replace(/\s+/g, "");
+  return STATUS_GROUP_MAP[normalized] ?? "maintenance";
+}
+
+export function getStatusBadgeClass(status?: string | null, className?: string) {
+  const group = getStatusColorGroup(status);
 
   return cn(
-    "rounded-lg bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700",
-    ["available", "active", "confirmed", "inprogress", "paid", "partialpaid"].includes(normalized) &&
-      "bg-emerald-100 text-emerald-700",
-    ["pending", "maintenance"].includes(normalized) && "bg-amber-100 text-amber-700",
-    ["booked", "reserved"].includes(normalized) && "bg-[#F4E7B0] text-[#4E2788]",
-    ["completed", "complete", "refunded"].includes(normalized) && "bg-[#F4E7B0] text-[#4E2788]",
-    ["cancelled", "rejected", "failed", "unavailable"].includes(normalized) && "bg-red-100 text-red-700",
-    ["rented"].includes(normalized) && "bg-blue-100 text-blue-700",
-    ["returningsoon"].includes(normalized) && "bg-purple-100 text-purple-700",
+    "inline-flex items-center rounded-full px-2.5 py-1 text-[10.5px] font-semibold leading-none whitespace-nowrap",
+    STATUS_GROUP_CLASS[group],
     className
   );
 }
