@@ -25,7 +25,7 @@ function now() {
 
 function logIfSlow(label: string, startedAt: number, thresholdMs = 25) {
   const duration = now() - startedAt
-  if (process.env.NODE_ENV === 'development' && duration >= thresholdMs) {
+  if (process.env.AUTH_DEBUG === 'true' && duration >= thresholdMs) {
     console.debug(`logs : [auth/access] ${label} took ${duration}ms`)
   }
 }

@@ -20,6 +20,6 @@ declare global {
 }
 
 const prisma = global.prisma ?? createPrismaClient()
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma
+if (process.env.AUTH_DEBUG === 'true') global.prisma = prisma
 
 export default prisma

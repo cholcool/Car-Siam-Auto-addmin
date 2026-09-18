@@ -92,7 +92,7 @@ export const authConfig: NextAuthConfig = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.AUTH_DEBUG === 'true',
 };
 
 // Export ตัว handlers และ auth ไปใช้ที่อื่น
