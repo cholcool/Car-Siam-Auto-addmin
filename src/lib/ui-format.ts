@@ -66,11 +66,11 @@ export function getStatusLabel(status?: string | null) {
     Reserved: "กำลังจอง",
     Rejected: "ถูกปฏิเสธ",
     Refunded: "คืนเงิน",
-    Rented: "มีคนเช่าอยู่",
+    Rented: "กำลังเช่า",
     ReturningSoon: "ใกล้คืนรถ",
     PartialPaid: "ชำระบางส่วน",
     Tax: "ภาษี",
-    Unavailable: "ไม่พร้อมใช้",
+    Unavailable: "ซ่อมบำรุง",
   };
 
   return status ? labels[status] ?? status : "Unknown";
@@ -122,7 +122,7 @@ const STATUS_GROUP_MAP: Record<string, StatusColorGroup> = {
   cancelled: "cancelled",
   rejected: "cancelled",
   failed: "cancelled",
-  unavailable: "cancelled",
+  unavailable: "maintenance",
 };
 
 const STATUS_GROUP_CLASS: Record<StatusColorGroup, string> = {

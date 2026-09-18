@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client'
 import prisma from '@/lib/prisma';
-import { buildCarOrderBy, buildCarWhere, parseCarListQuery } from '@/lib/cars/query'
+import { buildCarWhere, parseCarListQuery } from '@/lib/cars/query'
 import { serializePrismaRows } from '@/lib/serialize'
 import { CarStatus } from '@/lib/types'
 import { getCachedSession } from '@/lib/auth'
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
   const cars = await prisma.car.findMany({
     where: buildCarWhere(query),
-    orderBy: buildCarOrderBy(query.sort),
+    orderBy: { createdAt: 'desc' },
     include: {
       brand: true,
       vehicleType: true,

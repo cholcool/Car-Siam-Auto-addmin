@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Edit, BellRing } from 'lucide-react'
+import Image from 'next/image'
+import { BellRing, Car as CarIcon, Clock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   formatCompactNumber,
   getStatusBadgeClass,
@@ -20,8 +19,20 @@ interface PageProps {
   carsIn?: CarsRow[]
 }
 
-export default function PageClient({carsIn} : PageProps ) {
+// Decorative thumbnail tones cycled per row — mirrors the color variety of
+// the approved mobile mockup's car list cards (see
+// claude/design-system-alignment-report.md). Not tied to status; purely
+// visual rhythm so a long list doesn't look monotone.
+const CAR_THUMBNAIL_TONES = [
+  { background: 'linear-gradient(135deg, #E7E5E4, #F5F5F4)', icon: '#78716C' },
+  { background: 'linear-gradient(135deg, #1C1917, #44403C)', icon: '#FFFFFF' },
+  { background: 'linear-gradient(135deg, #DC2626, #EF4444)', icon: '#FFFFFF' },
+  { background: 'linear-gradient(135deg, #2563EB, #60A5FA)', icon: '#FFFFFF' },
+  { background: 'linear-gradient(135deg, #78716C, #A8A29E)', icon: '#FFFFFF' },
+  { background: 'linear-gradient(135deg, #059669, #34D399)', icon: '#FFFFFF' },
+]
 
+export default function PageClient({ carsIn }: PageProps) {
   const [error, setError] = useState('')
   const [cars, setCars] = useState<CarsRow[]>(carsIn || [])
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -78,80 +89,78 @@ export default function PageClient({carsIn} : PageProps ) {
 
   return (
     <>
-      {error ? <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">{error}</div> : null}
-      {isRefreshing ? <div className="mt-4 text-sm font-semibold text-slate-500">กำลังอัปเดตรายการรถ...</div> : null}
+      {error ? <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">{error}</div> : null}
+      {isRefreshing ? <div className="mb-4 text-sm font-semibold text-[#78716C]">กำลังอัปเดตรายการรถ...</div> : null}
 
-      <Card>
-        <CardContent className="p-6 sm:p-8">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-245 text-left">
-              <thead>
-                <tr className="border-b border-slate-200 text-sm font-extrabold text-slate-950">
-                  <th className="px-3 py-3">แบรนด์/รุ่น</th>
-                  <th className="px-3 py-3">ปี</th>
-                  <th className="px-3 py-3">ทะเบียน</th>
-                  <th className="px-3 py-3">สี</th>
-                  <th className="px-3 py-3">ประเภท</th>
-                  <th className="px-3 py-3 text-right">เลขไมล์</th>
-                  <th className="px-3 py-3">สถานะ</th>
-                  <th className="px-3 py-3">แจ้งเตือน</th>
-                  <th className='w-10 text-center sticky bg-white right-0 p-3 drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]'>จัดการ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cars.map((car) => {
-                  return (
-                    <tr key={car.id} className="border-b border-slate-200">
-                      <td className="px-3 py-3">{car.brand?.name} {car.model}</td>
-                      <td className="px-3 py-3">{car.year}</td>
-                      <td className="px-3 py-3">{car.license}</td>
-                      <td className="px-3 py-3">{car.color}</td>
-                      <td className="px-3 py-3">{car.vehicleType?.name}</td>
-                      <td className="px-3 py-3 text-right">{formatCompactNumber(toNumber(car.mileage))}</td>
-                      <td className="px-3 py-3"><Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge></td>
-                      <td className='px-3 py-3 sticky'>
-                        {(() => {
-                          // 1. กรองเอาเฉพาะอันที่สถานะเป็น Active เท่านั้น
-                          const alertMaintenances = [...(car.maintenances || [])]
-                            .filter((m) => m.status === 'Active' || m.status === 'Overdue')
-                            .sort(sortMaintenancesForAlert)
+      <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+        {cars.map((car, index) => {
+          const tone = CAR_THUMBNAIL_TONES[index % CAR_THUMBNAIL_TONES.length]
 
-                          const latestActive = alertMaintenances[0];
+          const alertMaintenances = [...(car.maintenances || [])]
+            .filter((m) => m.status === 'Active' || m.status === 'Overdue')
+            .sort(sortMaintenancesForAlert)
+          const latestActive = alertMaintenances[0]
+          // const coverImage = car.images?.[0]?.image
+          const coverImage = car.images?.find((img) => img.isDeleted === false)?.image
 
-                          // 3. แสดงผล Badge หากมีข้อมูลตรงตามเงื่อนไข
-                          if (latestActive) {
-                            return (
-                              <>
-                                <Badge className="rounded-lg bg-amber-50 px-3 py-1 text-xs font-bold text-black">
-                                  <BellRing className="mr-1 inline-block text-xs text-yellow-500" /> 
-                                  {getStatusLabel(latestActive.type) ?? ''}
-                                </Badge>
-                              </>
-                            );
-                          }
+          return (
+            <div
+              key={car.id}
+              className="group relative flex gap-3 rounded-2xl border border-[#E7E5E4] bg-white p-3 shadow-[0_1px_2px_rgba(28,25,23,0.04)] transition-shadow hover:shadow-[0_4px_12px_rgba(28,25,23,0.08)]"
+            >
+              <Link
+                href={`/dashboard/cars/${car.id}`}
+                className="absolute inset-0 z-0 rounded-2xl"
+                aria-label={`ดูรายละเอียด ${car.brand?.name ?? ''} ${car.model}`}
+              />
 
-                          // 4. กรณีไม่มีงานซ่อมบำรุงที่กำลัง Active อยู่เลย ให้ขึ้นเครื่องหมายขีด
-                          return <span className="text-slate-400"></span>;
-                        })()}
-                      </td>
-                      <td className='sticky right-0 bg-white p-3 border-l drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]'>
-                        <div className="flex justify-end gap-2">
-                          <Button asChild size={"sm"} variant="ghost">
-                            <Link href={`/dashboard/cars/${car.id}`}>
-                              <Edit className="size-4" />
-                            </Link>
-                          </Button>
-                          <AlertDialogDestructive onClick={() => deleteItem(car.id)} variant={'destructive'} />
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              <div
+                className="relative z-10 flex h-[72px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-2xl pointer-events-none"
+                style={coverImage ? undefined : { background: tone.background }}
+              >
+                {coverImage ? (
+                  <Image src={coverImage.url} alt={coverImage.name || `${car.brand?.name ?? ''} ${car.model}`} fill sizes="72px" className="object-cover" />
+                ) : (
+                  <CarIcon className="h-8 w-8" style={{ color: tone.icon }} strokeWidth={1.6} aria-hidden="true" />
+                )}
+              </div>
+
+              <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-center gap-1 pointer-events-none">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="truncate text-[14.5px] font-bold text-[#1C1917]">
+                    {car.brand?.name} {car.model}
+                  </div>
+                </div>
+
+                <div className="truncate text-xs text-[#78716C]">
+                  {car.vehicleType?.name} · {car.color} · {car.license}
+                </div>
+
+                {latestActive ? (
+                  <Badge className="pointer-events-auto relative z-20 mt-0.5 w-fit rounded-full bg-[#FFF7ED] px-2.5 py-1 text-[10.5px] font-semibold text-[#C2410C]">
+                    <BellRing className="mr-1 inline-block h-3 w-3 text-[#C2410C]" />
+                    {getStatusLabel(latestActive.type) ?? ''}
+                  </Badge>
+                ) : (
+                  <div className="mt-0.5 flex items-center gap-1.5 text-[11.5px] text-[#A8A29E]">
+                    <Clock className="h-3 w-3" aria-hidden="true" />
+                    เลขไมล์ {formatCompactNumber(toNumber(car.mileage))} กม.
+                  </div>
+                )}
+              </div>
+
+              <div className='flex flex-col items-end justify-between gap-1.5'>
+                <span className={getStatusBadgeClass(car.status, 'pointer-events-auto relative z-20')}>
+                  {getStatusLabel(car.status)}
+                </span>
+                <div className="relative z-20 flex shrink-0 items-start">
+                  <AlertDialogDestructive onClick={() => deleteItem(car.id)} variant={'destructive'} />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </>
   )
 }

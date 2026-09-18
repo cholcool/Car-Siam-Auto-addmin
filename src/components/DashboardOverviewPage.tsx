@@ -68,7 +68,7 @@ function QuickAction({ href, label, icon: Icon, primary = false }: QuickActionPr
     <Link href={href} className="flex flex-col items-center gap-2">
       <div
         className={cn(
-          'flex h-13 w-13 items-center justify-center rounded-2xl transition-transform hover:-translate-y-0.5',
+          'flex h-[52px] w-[52px] items-center justify-center rounded-2xl transition-transform hover:-translate-y-0.5',
           primary
             ? 'bg-[#6D28D9] text-white shadow-[0_6px_14px_rgba(109,40,217,0.28)]'
             : 'border border-[#E7E5E4] bg-white text-[#44403C] shadow-sm'
@@ -156,7 +156,7 @@ export async function DashboardOverviewPage({ activeTab }: { activeTab: TabKey }
         <h1 className="text-lg font-bold text-[#1C1917]">{displayName}</h1>
       </div>
 
-      <section className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+      <section className="grid md:gap-3 gap-1.5 grid-cols-2 xl:grid-cols-4">
         <StatCard
           href="/dashboard/cars"
           title="รถทั้งหมด"

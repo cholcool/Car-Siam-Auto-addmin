@@ -1,12 +1,12 @@
-import { Car } from 'lucide-react'
+import { Car as CarIcon, CheckCircle2 } from 'lucide-react'
 import prisma from '@/lib/prisma'
 import { Card, CardContent } from '@/components/ui'
-import { formatCompactNumber } from '@/lib/ui-format'
 import SpeedDialContainer from '@/components/SpeedDialContainer'
+import { StatCard } from '@/components/DashboardOverviewPage'
 import PageClient from "./page-client"
 import { type CarsRow } from '@/lib/types'
 import { syncMaintenanceStatuses } from '@/lib/maintenance-sync'
-import { buildCarOrderBy, buildCarWhere, parseCarListQuery } from '@/lib/cars/query'
+import { buildCarWhere, parseCarListQuery } from '@/lib/cars/query'
 import CarsFilters from './filters'
 
 export const dynamic = 'force-dynamic'
@@ -17,16 +17,15 @@ type PageProps = {
 
 export default async function CarsPage({ searchParams }: PageProps) {
   const params = (await searchParams) ?? {}
-  const { inputSearch, status, brand, vehicleType, sort } = parseCarListQuery(params)
-  const where = buildCarWhere({ inputSearch, status, brand, vehicleType, sort })
-  const orderBy = buildCarOrderBy(sort)
+  const { inputSearch, status } = parseCarListQuery(params)
+  const where = buildCarWhere({ inputSearch, status })
 
   await syncMaintenanceStatuses()
 
-  const [cars, availableCars, vehicleTypes, brands] = await Promise.all([
+  const [cars, totalCarsCount, availableCars, statusGroups] = await Promise.all([
     prisma.car.findMany({
       where,
-      orderBy,
+      orderBy: { createdAt: 'desc' },
       take: 48,
       include: {
         brand: true,
@@ -38,52 +37,59 @@ export default async function CarsPage({ searchParams }: PageProps) {
         },
       },
     }),
+    prisma.car.count({ where: { isDeleted: false } }),
     prisma.car.count({ where: { isDeleted: false, status: 'Available' } }),
-    prisma.vehicleType.findMany({ where: { isDeleted: false } }),
-    prisma.brand.findMany({ where: { isDeleted: false } }),
-  ]) as [CarsRow[], number, { id: string; name: string }[], { id: string; name: string }[]]
+    prisma.car.groupBy({
+      by: ['status'],
+      where: { isDeleted: false },
+      _count: { _all: true },
+    })
+  ]) as [CarsRow[], number, number, { status: string; _count: { _all: number } }[]]
 
-  const totalCars = cars.length
+  const statusCounts = Object.fromEntries(statusGroups.map((row) => [row.status, row._count._all]))
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className='hidden md:block'>
-          <h1 className="text-4xl font-extrabold tracking-normal text-slate-950">จัดการรถ</h1>
+    <div className="space-y-6">
+      <header className="hidden md:flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#1C1917]">จัดการรถ</h1>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:min-w-72">
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm shadow-slate-200/60">
-            <div className="text-sm font-bold text-slate-500">ทั้งหมด</div>
-            <div className="mt-2 text-3xl font-extrabold text-slate-950">{formatCompactNumber(totalCars)}</div>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm shadow-slate-200/60">
-            <div className="text-sm font-bold text-slate-500">พร้อมให้เช่า</div>
-            <div className="mt-2 text-3xl font-extrabold text-emerald-600">
-              {formatCompactNumber(availableCars)}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-3 sm:min-w-80">
+          <StatCard
+            href="/dashboard/cars"
+            title="รถทั้งหมด"
+            value={String(totalCarsCount)}
+            icon={CarIcon}
+            iconBoxClassName="bg-[#F5F3FF]"
+            iconClassName="text-[#6D28D9]"
+          />
+          <StatCard
+            href="/dashboard/cars?status=Available"
+            title="พร้อมให้เช่า"
+            value={String(availableCars)}
+            icon={CheckCircle2}
+            iconBoxClassName="bg-[#F0FDF4]"
+            iconClassName="text-[#16A34A]"
+          />
         </div>
       </header>
 
-      <CarsFilters 
+      <CarsFilters
         initialSearch={inputSearch}
-        initialVehicleType={vehicleType}
-        initialBrand={brand}
         initialStatus={status}
-        initialSort={sort}
-        vehicleTypes={vehicleTypes}
-        brands={brands}
+        statusCounts={statusCounts}
+        totalCount={totalCarsCount}
       />
 
       {cars.length === 0 && (
         <Card>
           <CardContent className="py-14 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-              <Car className="h-7 w-7" aria-hidden="true" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F5F3FF] text-[#6D28D9]">
+              <CarIcon className="h-7 w-7" aria-hidden="true" />
             </div>
-            <h2 className="mt-5 text-xl font-extrabold text-slate-950">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</h2>
-            <p className="mt-2 text-sm font-semibold text-slate-500">ลองเปลี่ยนคำค้นหาหรือตัวกรองอีกครั้ง</p>
+            <h2 className="mt-5 text-xl font-extrabold text-[#1C1917]">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</h2>
+            <p className="mt-2 text-sm font-semibold text-[#78716C]">ลองเปลี่ยนคำค้นหาหรือตัวกรองอีกครั้ง</p>
           </CardContent>
         </Card>
       )}
