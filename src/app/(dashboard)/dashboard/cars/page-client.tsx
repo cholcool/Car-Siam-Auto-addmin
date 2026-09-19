@@ -119,7 +119,7 @@ export default function PageClient({ carsIn }: PageProps) {
                 style={coverImage ? undefined : { background: tone.background }}
               >
                 {coverImage ? (
-                  <Image src={coverImage.url} alt={coverImage.name || `${car.brand?.name ?? ''} ${car.model}`} fill sizes="72px" className="object-cover" />
+                  <Image src={coverImage.url} alt={coverImage.name || `${car.brand?.name ?? ''} ${car.model}`} fill sizes="72px" className="object-scale-down" />
                 ) : (
                   <CarIcon className="h-8 w-8" style={{ color: tone.icon }} strokeWidth={1.6} aria-hidden="true" />
                 )}

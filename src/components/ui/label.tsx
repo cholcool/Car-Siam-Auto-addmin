@@ -8,7 +8,7 @@ type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement>
 
 export default function Label({ children, className = '', ...props }: LabelProps) {
   return (
-    <label className={cn('mb-1.5 block text-sm font-semibold text-slate-800', className)} {...props}>
+    <label className={cn('mb-1.5 block text-[13px] font-semibold text-[#44403C]', className)} {...props}>
       {children}
     </label>
   )

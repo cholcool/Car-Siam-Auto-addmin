@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, Save } from 'lucide-react'
+import { ChevronDown, Loader2, Save } from 'lucide-react'
 import { Button, Label, Input, Textarea } from '@/components/ui'
+import { appInputClass } from '@/lib/ui-format'
 import { createCar } from '@/app/dashboard/cars/cars-actions'
 import { useRouter } from 'next/navigation'
+import { cn } from '@/lib/utils'
 import { CarStatusOptions, CarStatus } from '@/lib/types'
 import CarImageUploader from '@/components/CarImageUploader'
 
@@ -24,6 +26,23 @@ interface CarFormProps {
   onSuccess: () => void
 }
 
+// Native <select> restyled to look exactly like appInputClass text inputs,
+// with a chevron affordance — matches the approved mobile mockup's select
+// fields ("เลือกประเภท" / "เลือกยี่ห้อ").
+function FormSelect({ className, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="relative">
+      <select
+        {...props}
+        className={cn(appInputClass, 'appearance-none pr-9', className)}
+      >
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A8A29E]" aria-hidden="true" />
+    </div>
+  )
+}
+
 export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -32,7 +51,7 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
     vehicleTypeId: '',
     brandId: '',
     model: '',
-    year: new Date().getFullYear().toString(),
+    year: '',
     color: '',
     license: '',
     engine: '',
@@ -62,10 +81,10 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     const newErrors: Record<string, string> = {}
     if (!formData.vehicleTypeId) newErrors.vehicleTypeId = 'ประเภทรถเป็นข้อมูลบังคับ'
-    if (!formData.brandId) newErrors.brandId = 'แบรนด์รถเป็นข้อมูลบังคับ'
+    if (!formData.brandId) newErrors.brandId = 'ยี่ห้อรถเป็นข้อมูลบังคับ'
     if (!formData.model.trim()) newErrors.model = 'รุ่นรถเป็นข้อมูลบังคับ'
     if (!formData.year || !/^\d{4}$/.test(formData.year)) newErrors.year = 'ปีต้องเป็นตัวเลข 4 หลัก'
     if (!formData.color.trim()) newErrors.color = 'สีรถเป็นข้อมูลบังคับ'
@@ -98,19 +117,19 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
 
       if (result.success) {
         const carId = result.data?.id
-          if (carId && pendingFiles.length > 0) {
-            const formData = new FormData()
-            formData.append('carId', carId)
-            pendingFiles.forEach((file) => {
-              formData.append('files', file)
-              formData.append('originalNames', file.name)
-            })
-            await fetch('/api/car-images', { method: 'POST', body: formData })
-          }
+        if (carId && pendingFiles.length > 0) {
+          const uploadData = new FormData()
+          uploadData.append('carId', carId)
+          pendingFiles.forEach((file) => {
+            uploadData.append('files', file)
+            uploadData.append('originalNames', file.name)
+          })
+          await fetch('/api/car-images', { method: 'POST', body: uploadData })
+        }
         router.refresh()
 
         setTimeout(() => {
-          onSuccess() 
+          onSuccess()
         }, 60)
       } else {
         setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างรถ' })
@@ -123,248 +142,236 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 pb-20">
-      {errors.form && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm font-medium text-red-700">
-          {errors.form}
-        </div>
-      )}
-
-      <section className="space-y-4">
-        <h3 className="text-sm font-extrabold uppercase tracking-wide text-slate-500">
-        ข้อมูลรถ
-        </h3>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="vehicleTypeId" className="font-bold text-slate-900">
-              ประเภทรถ <span className="text-red-600">*</span>
-            </Label>
-            <select
-              id="vehicleTypeId"
-              name="vehicleTypeId"
-              value={formData.vehicleTypeId}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              <option value="">-- เลือกประเภทรถ --</option>
-              {vehicleTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
-            </select>
-            {errors.vehicleTypeId && (
-              <p className="mt-1 text-xs font-medium text-red-600">{errors.vehicleTypeId}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="brandId" className="font-bold text-slate-900">
-              แบรนด์รถ <span className="text-red-600">*</span>
-            </Label>
-            <select
-              id="brandId"
-              name="brandId"
-              value={formData.brandId}
-              onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              <option value="">-- เลือกแบรนด์ --</option>
-              {brands.map((brand) => (
-                <option key={brand.id} value={brand.id}>
-                  {brand.name}
-                </option>
-              ))}
-            </select>
-            {errors.brandId && (
-              <p className="mt-1 text-xs font-medium text-red-600">{errors.brandId}</p>
-            )}
-          </div>
-        </div>
-        
-        <div>
-          <Label htmlFor="model" className="font-bold text-slate-900">
-            รุ่นรถ <span className="text-red-600">*</span>
-          </Label>
-          <Input
-            id="model"
-            name="model"
-            type="text"
-            placeholder="เช่น Accord, Civic, CR-V, HR-V, Camry, Corolla"
-            value={formData.model}
-            onChange={handleChange}
-            className="mt-2"
-          />
-          {errors.model && (
-            <p className="mt-1 text-xs font-medium text-red-600">{errors.model}</p>
+    <form onSubmit={handleSubmit} className='relative flex h-full flex-col overflow-hidden'>
+      <div className='overflow-y-auto px-5 py-5 bg-[#FAFAF9]'>
+        <div className="space-y-3">
+          {errors.form && (
+            <div className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-700">
+              {errors.form}
+            </div>
           )}
-        </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label htmlFor="year" className="font-bold text-slate-900">
-              ปีที่ผลิต <span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="year"
-              name="year"
-              type="text"
-              placeholder="2024"
-              inputMode="numeric"
-              maxLength={4}
-              value={formData.year}
-              onChange={handleChange}
-              className="mt-2"
-            />
-            {errors.year && (
-              <p className="mt-1 text-xs font-medium text-red-600">{errors.year}</p>
-            )}
+            <Label>รูปภาพรถ</Label>
+            <CarImageUploader onPendingFilesChange={setPendingFiles} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="vehicleTypeId">
+                ประเภทรถ <span className="text-[#DC2626]">*</span>
+              </Label>
+              <FormSelect
+                id="vehicleTypeId"
+                name="vehicleTypeId"
+                value={formData.vehicleTypeId}
+                onChange={handleChange}
+              >
+                <option value="">เลือกประเภท</option>
+                {vehicleTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </FormSelect>
+              {errors.vehicleTypeId && (
+                <p className="mt-1 text-xs font-medium text-red-600">{errors.vehicleTypeId}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="brandId">
+                ยี่ห้อ <span className="text-[#DC2626]">*</span>
+              </Label>
+              <FormSelect
+                id="brandId"
+                name="brandId"
+                value={formData.brandId}
+                onChange={handleChange}
+              >
+                <option value="">เลือกยี่ห้อ</option>
+                {brands.map((brand) => (
+                  <option key={brand.id} value={brand.id}>
+                    {brand.name}
+                  </option>
+                ))}
+              </FormSelect>
+              {errors.brandId && (
+                <p className="mt-1 text-xs font-medium text-red-600">{errors.brandId}</p>
+              )}
+            </div>
           </div>
 
           <div>
-            <Label htmlFor="color" className="font-bold text-slate-900">
-              สีรถ <span className="text-red-600">*</span>
+            <Label htmlFor="model">
+              รุ่น <span className="text-[#DC2626]">*</span>
             </Label>
             <Input
-              id="color"
-              name="color"
+              id="model"
+              name="model"
               type="text"
-              placeholder="เช่น สีดำ, สีขาว"
-              value={formData.color}
+              placeholder="เช่น Commutor, Camry"
+              value={formData.model}
               onChange={handleChange}
-              className="mt-2"
+              className={appInputClass}
             />
-            {errors.color && (
-              <p className="mt-1 text-xs font-medium text-red-600">{errors.color}</p>
+            {errors.model && (
+              <p className="mt-1 text-xs font-medium text-red-600">{errors.model}</p>
             )}
           </div>
-        </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="year">
+                ปีที่ผลิต <span className="text-[#DC2626]">*</span>
+              </Label>
+              <Input
+                id="year"
+                name="year"
+                type="text"
+                placeholder="2569"
+                inputMode="numeric"
+                maxLength={4}
+                value={formData.year}
+                onChange={handleChange}
+                className={appInputClass}
+              />
+              {errors.year && (
+                <p className="mt-1 text-xs font-medium text-red-600">{errors.year}</p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="color">
+                สี <span className="text-[#DC2626]">*</span>
+              </Label>
+              <Input
+                id="color"
+                name="color"
+                type="text"
+                placeholder="เช่น ขาว"
+                value={formData.color}
+                onChange={handleChange}
+                className={appInputClass}
+              />
+              {errors.color && (
+                <p className="mt-1 text-xs font-medium text-red-600">{errors.color}</p>
+              )}
+            </div>
+          </div>
+
           <div>
-            <Label htmlFor="license" className="font-bold text-slate-900">
-              ทะเบียนรถ <span className="text-red-600">*</span>
+            <Label htmlFor="license">
+              ทะเบียนรถ <span className="text-[#DC2626]">*</span>
             </Label>
             <Input
               id="license"
               name="license"
               type="text"
-              placeholder="เช่น กก-1234"
+              placeholder="เช่น กข 1234"
               value={formData.license}
               onChange={handleChange}
-              className="mt-2"
+              className={appInputClass}
             />
             {errors.license && (
               <p className="mt-1 text-xs font-medium text-red-600">{errors.license}</p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="engine" className="font-bold text-slate-900">
-              เลขเครื่องยนต์
-            </Label>
-            <Input
-              id="engine"
-              name="engine"
-              type="text"
-              placeholder="เช่น R20A1 - 1234567"
-              value={formData.engine}
-              onChange={handleChange}
-              className="mt-2"
-            />
-          </div>
-        </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="engine">เลขเครื่องยนต์</Label>
+              <Input
+                id="engine"
+                name="engine"
+                type="text"
+                placeholder="ไม่บังคับ"
+                value={formData.engine}
+                onChange={handleChange}
+                className={appInputClass}
+              />
+            </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label htmlFor="chassis" className="font-bold text-slate-900">
-              เลขตัวถัง 
-            </Label>
-            <Input
-              id="chassis"
-              name="chassis"
-              type="text"
-              placeholder="เช่น MRHFC26A0E0123456"
-              value={formData.chassis}
-              onChange={handleChange}
-              className="mt-2"
-            />
+            <div>
+              <Label htmlFor="chassis">เลขตัวถัง</Label>
+              <Input
+                id="chassis"
+                name="chassis"
+                type="text"
+                placeholder="ไม่บังคับ"
+                value={formData.chassis}
+                onChange={handleChange}
+                className={appInputClass}
+              />
+            </div>
           </div>
 
           <div>
-            <Label htmlFor="mileage" className="font-bold text-slate-900">
-              เลขไมล์
-            </Label>
-            <Input
-              id="mileage"
-              name="mileage"
-              type="number"
-              placeholder="0"
-              min="0"
-              value={formData.mileage}
-              onChange={handleChange}
-              className="mt-2"
-            />
+            <Label htmlFor="mileage">เลขไมล์เริ่มต้น</Label>
+            <div className="relative">
+              <Input
+                id="mileage"
+                name="mileage"
+                type="number"
+                placeholder="0"
+                min="0"
+                value={formData.mileage}
+                onChange={handleChange}
+                className={cn(appInputClass, 'pr-12 font-bold text-[#1C1917]')}
+              />
+              <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-[#78716C]">
+                กม.
+              </span>
+            </div>
             {errors.mileage && (
               <p className="mt-1 text-xs font-medium text-red-600">{errors.mileage}</p>
             )}
           </div>
+
+          <div>
+            <Label htmlFor="remark">หมายเหตุ</Label>
+            <Textarea
+              id="remark"
+              name="remark"
+              placeholder="เพิ่มหมายเหตุเกี่ยวกับรถคันนี้..."
+              value={formData.remark}
+              onChange={handleChange}
+              className="resize-none"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="status">สถานะรถ</Label>
+            <FormSelect
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              {CarStatusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </FormSelect>
+          </div>
         </div>
+      </div>
 
-        <div>
-          <Label htmlFor="status" className="font-bold text-slate-900">
-            สถานะรถ
-          </Label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          >
-            {CarStatusOptions.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <Label htmlFor="remark" className="font-bold text-slate-900">
-          หมายเหตุ
-          </Label>
-          <Textarea
-            id="remark"
-            name="remark"
-            placeholder="เพิ่มหมายเหตุเกี่ยวกับรถคันนี้..."
-            value={formData.remark}
-            onChange={handleChange}
-            className="mt-2 resize-none"
-            rows={3}
-          />
-        </div>
-
-      </section>
-
-      <CarImageUploader onPendingFilesChange={setPendingFiles} />
-
-      <div className="sticky bottom-0 left-0 right-0 border-t border-slate-200 bg-white pt-4">
-        <div className="flex gap-3">
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1"
-            variant="save"
-          >
+      <div className="sticky bottom-0 left-0 right-0 border-t border-[#E7E5E4] bg-white px-5 py-4">
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="h-[52px] w-full rounded-xl bg-[#6D28D9] text-[15px] font-bold text-white shadow-[0_8px_16px_rgba(109,40,217,0.28)] hover:bg-[#5B21B6]"
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
             <Save className="mr-2 h-4 w-4" aria-hidden="true" />
-            {isLoading && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-            )}
-            {isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
-          </Button>
-        </div>
+          )}
+          {isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูลรถ'}
+        </Button>
       </div>
     </form>
   )

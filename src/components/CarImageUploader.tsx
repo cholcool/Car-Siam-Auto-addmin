@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Loader2, ImagePlus, ImageUp, BookImage, Car } from 'lucide-react'
+import { Loader2, ImageUp, Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { AlertDialogDestructive } from '@/components/AlertDialogDestructive'
+import { cn } from '@/lib/utils'
 
 type ExistingImage = { id: string; url: string; name?: string | null }
 
@@ -21,7 +22,7 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
   const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialImages)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   useEffect(() => {
     setExistingImages(prev =>
       JSON.stringify(prev) === JSON.stringify(initialImages) ? prev : initialImages
@@ -45,21 +46,21 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
     }
   }, [selectedFiles])
 
-  const handleFileChange = async(files: FileList | null) => {
+  const handleFileChange = async (files: FileList | null) => {
     if (!files?.length) return
 
-    const fileArr = Array.from(files);
+    const fileArr = Array.from(files)
     // The compression library is large, so only fetch it after the user selects images.
     const { default: imageCompression } = await import('browser-image-compression')
 
-    const compressedArr = fileArr.map(async (item:any) => {
+    const compressedArr = fileArr.map(async (item: any) => {
       const options = {
-        maxSizeMB: 0.7,            // ขนาดไฟล์สูงสุดที่ต้องการ (เช่น ไม่เกิน 1MB)
-        maxWidthOrHeight: 1024,  // ขนาดความกว้างหรือสูงสูงสุดไม่เกิน 1024px (รักษา Aspect Ratio อัตโนมัติ)
-        useWebWorker: true,      // ใช้ Web Worker ทำงานเบื้องหลัง เพื่อไม่ให้หน้าจอค้างขณะบีบอัด
-      };
+        maxSizeMB: 0.7,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      }
 
-      return await imageCompression(item, options);
+      return await imageCompression(item, options)
     })
 
     const compressedFiles = await Promise.all(
@@ -69,7 +70,7 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
         return new File([compressed], original.name, { type: compressed.type || original.type })
       })
     )
-    
+
     setError(null)
     setSelectedFiles((prev) => [...prev, ...compressedFiles])
   }
@@ -122,82 +123,62 @@ export default function CarImageUploader({ carId, initialImages = [], onPendingF
     }
   }
 
+  const thumbClass = 'relative h-20 w-20 shrink-0 overflow-hidden rounded border border-[#E7E5E4]'
+
   return (
-    <div className={className}>
-      <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
-          <div className="mb-4 flex items-center gap-2">
-            <Car className="h-5 w-5 text-blue-700" />
-            <h2 className="text-lg font-bold text-slate-950">รูปภาพรถ</h2>
-          </div>
-          <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-            <ImagePlus className="h-4 w-4" />
-            เลือกรูป
-            <input hidden type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e.target.files)} />
-          </label>
-        </div>
+    <div className={cn('mt-2', className)}>
+      {error && <div className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
-        {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+      <div className="flex flex-wrap gap-3">
+        <label className="flex h-20 w-20 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded border-2 border-dashed border-[#E7E5E4] bg-white text-[#6D28D9] hover:border-[#6D28D9]/40">
+          <Plus className="h-5 w-5" aria-hidden="true" />
+          <span className="text-[11px] font-semibold">เพิ่มรูป</span>
+          <input hidden type="file" accept="image/*" multiple onChange={(e) => handleFileChange(e.target.files)} />
+        </label>
 
-        {existingImages.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {existingImages.map((image) => (
-              <div key={image.id} className="group relative overflow-hidden rounded-xl border border-slate-200">
-                <div className="relative aspect-4/3">
-                  <Image
-                    src={image.url}
-                    alt={image.name ?? 'car image'}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    loading="lazy"
-                    className="object-cover"
-                  />
-                </div>
-                <AlertDialogDestructive 
-                  onClick={() => removeExisting(image.id)} 
-                  variant={'imageDelete'} 
-                  title='ต้องการลบรูปภาพนี้ใช่ไหม?'
-                  description=''
-                />
-              </div>
-            ))}
-          </div>
-        )}
-
-        {previews.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {previews.map(({ file, preview }, index) => (
-              <div key={`${file.name}-${index}`} className="relative overflow-hidden rounded-xl border border-slate-200">
-                <div className="relative aspect-4/3">
-                  <Image src={preview} alt={file.name} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
-                </div>
-                <div className="flex items-center justify-between gap-2 border-t border-slate-100 bg-white px-3 py-2 text-xs text-slate-600">
-                  <span className="truncate">ตัวอย่างรูปภาพนี้ยังไม่ถูกอัพโหลด</span>
-                  <button type="button" onClick={() => removeSelected(index)} className="font-semibold text-red-600">
-                    ลบตัวอย่างรูป
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {existingImages.length === 0 && previews.length === 0 && (
-          <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50">
-            <div className="text-center">
-              <BookImage className="mx-auto h-12 w-12 text-slate-300" />
-              <p className="mt-3 text-sm font-semibold text-slate-500">ไม่มีรูปภาพ</p>
+        {existingImages.map((image) => (
+          <div key={image.id} className={cn(thumbClass, 'group')}>
+            <Image
+              src={image.url}
+              alt={image.name ?? 'car image'}
+              fill
+              sizes="80px"
+              loading="lazy"
+              className="object-contain"
+            />
+            <div className="absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <AlertDialogDestructive
+                onClick={() => removeExisting(image.id)}
+                variant={'imageDelete'}
+                size="icon-sm"
+                title="ต้องการลบรูปภาพนี้ใช่ไหม?"
+                description=""
+              />
             </div>
           </div>
-        )}
+        ))}
 
-        {carId && (
-          <Button type="button" onClick={uploadSelected} disabled={isUploading || selectedFiles.length === 0}>
-            {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageUp className="h-4 w-4" />}
-            อัปโหลดรูปภาพ
-          </Button>
-        )}
+        {previews.map(({ file, preview }, index) => (
+          <div key={`${file.name}-${index}`} className={cn(thumbClass, 'bg-[#F5F5F4]')}>
+            <Image src={preview} alt={file.name} fill sizes="80px" className="object-contain" />
+            <button
+              type="button"
+              onClick={() => removeSelected(index)}
+              aria-label="ลบรูปนี้"
+              className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+            >
+              <X className="h-3 w-3" aria-hidden="true" />
+            </button>
+          </div>
+        ))}
       </div>
+
+      {carId && selectedFiles.length > 0 && (
+        <Button type="button" onClick={uploadSelected} disabled={isUploading} className="mt-3">
+          {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageUp className="h-4 w-4" />}
+          อัปโหลดรูปภาพ
+        </Button>
+      )}
     </div>
   )
 }
