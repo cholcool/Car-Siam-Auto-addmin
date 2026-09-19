@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { ChevronDown, Loader2, Save } from 'lucide-react'
 import { Button, Label, Input, Textarea } from '@/components/ui'
 import { appInputClass } from '@/lib/ui-format'
-import { createCar } from '@/app/dashboard/cars/cars-actions'
+import { createCar, updateCar } from '@/app/dashboard/cars/cars-actions'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { CarStatusOptions, CarStatus } from '@/lib/types'
 import CarImageUploader from '@/components/CarImageUploader'
+
+type ExistingImage = { id: string; url: string; name?: string | null }
 
 interface VehicleType {
   id: string
@@ -24,6 +26,22 @@ interface CarFormProps {
   vehicleTypes: VehicleType[]
   brands: Brand[]
   onSuccess: () => void
+  mode?: 'create' | 'edit'
+  carId?: string
+  initialValues?: {
+    vehicleTypeId: string
+    brandId: string
+    model: string
+    year: string
+    color: string
+    license: string
+    engine: string
+    chassis: string
+    mileage: string
+    status: string
+    remark: string
+  }
+  initialImages?: ExistingImage[]
 }
 
 // Native <select> restyled to look exactly like appInputClass text inputs,
@@ -43,23 +61,26 @@ function FormSelect({ className, children, ...props }: React.SelectHTMLAttribute
   )
 }
 
-export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProps) {
+export default function CarForm({ vehicleTypes, brands, onSuccess, mode = 'create', carId, initialValues, initialImages = [] }: CarFormProps) {
+  const isEdit = mode === 'edit'
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
-  const [formData, setFormData] = useState({
-    vehicleTypeId: '',
-    brandId: '',
-    model: '',
-    year: '',
-    color: '',
-    license: '',
-    engine: '',
-    chassis: '',
-    mileage: '0',
-    status: 'Available',
-    remark: '',
-  })
+  const [formData, setFormData] = useState(
+    initialValues ?? {
+      vehicleTypeId: '',
+      brandId: '',
+      model: '',
+      year: '',
+      color: '',
+      license: '',
+      engine: '',
+      chassis: '',
+      mileage: '0',
+      status: 'Available',
+      remark: '',
+    }
+  )
   const router = useRouter()
 
   const handleChange = (
@@ -101,7 +122,7 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
     setIsLoading(true)
 
     try {
-      const result = await createCar({
+      const payload = {
         vehicleTypeId: formData.vehicleTypeId,
         brandId: formData.brandId,
         model: formData.model.trim(),
@@ -113,13 +134,17 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
         mileage: parseFloat(formData.mileage),
         status: formData.status as CarStatus,
         remark: formData.remark || null,
-      })
+      }
+
+      const result = isEdit && carId
+        ? await updateCar({ carId, ...payload })
+        : await createCar(payload)
 
       if (result.success) {
-        const carId = result.data?.id
-        if (carId && pendingFiles.length > 0) {
+        const newCarId = isEdit ? carId : result.data?.id
+        if (!isEdit && newCarId && pendingFiles.length > 0) {
           const uploadData = new FormData()
-          uploadData.append('carId', carId)
+          uploadData.append('carId', newCarId)
           pendingFiles.forEach((file) => {
             uploadData.append('files', file)
             uploadData.append('originalNames', file.name)
@@ -128,11 +153,15 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
         }
         router.refresh()
 
+        if (isEdit) {
+          router.push(`/dashboard/cars/${carId}`, { scroll: false })
+        }
+
         setTimeout(() => {
           onSuccess()
         }, 60)
       } else {
-        setErrors({ form: result.error || 'เกิดข้อผิดพลาดในการสร้างรถ' })
+        setErrors({ form: result.error || (isEdit ? 'เกิดข้อผิดพลาดในการแก้ไขข้อมูลรถ' : 'เกิดข้อผิดพลาดในการสร้างรถ') })
       }
     } catch {
       setErrors({ form: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
@@ -153,9 +182,29 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
 
           <div>
             <Label>รูปภาพรถ</Label>
-            <CarImageUploader onPendingFilesChange={setPendingFiles} />
+            {isEdit && carId ? (
+              <CarImageUploader carId={carId} initialImages={initialImages} onUploaded={() => router.refresh()} />
+            ) : (
+              <CarImageUploader onPendingFilesChange={setPendingFiles} />
+            )}
           </div>
 
+          <div>
+            <Label htmlFor="status">สถานะรถ</Label>
+            <FormSelect
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              {CarStatusOptions.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </FormSelect>
+          </div>
+          
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="vehicleTypeId">
@@ -340,22 +389,6 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
               rows={3}
             />
           </div>
-
-          <div>
-            <Label htmlFor="status">สถานะรถ</Label>
-            <FormSelect
-              id="status"
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              {CarStatusOptions.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </FormSelect>
-          </div>
         </div>
       </div>
 
@@ -370,7 +403,7 @@ export default function CarForm({ vehicleTypes, brands, onSuccess }: CarFormProp
           ) : (
             <Save className="mr-2 h-4 w-4" aria-hidden="true" />
           )}
-          {isLoading ? 'กำลังบันทึก...' : 'บันทึกข้อมูลรถ'}
+          {isLoading ? 'กำลังบันทึก...' : isEdit ? 'บันทึกการแก้ไข' : 'บันทึกข้อมูลรถ'}
         </Button>
       </div>
     </form>

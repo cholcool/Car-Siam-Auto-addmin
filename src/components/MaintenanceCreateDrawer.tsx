@@ -2,17 +2,16 @@
 
 import { useMemo, useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Edit, Wrench, Settings2, X } from 'lucide-react'
-import { Button, Card, CardContent, Input, Textarea, Select, Badge } from '@/components/ui'
-import { formatThaiDate, formatCompactNumber, toNumber, getStatusLabel, getNotificationLabel } from '@/lib/ui-format'
+import { Wrench, X } from 'lucide-react'
+import { Button, Card, CardContent, Input, Textarea, Select } from '@/components/ui'
+import { formatCompactNumber, toNumber, getNotificationLabel } from '@/lib/ui-format'
 import { completeMaintenance, createMaintenance, deleteMaintenance, updateMaintenance } from '@/app/dashboard/cars/maintenance-actions'
 import { AlertDialogDestructive } from '@/components/AlertDialogDestructive'
 import { MaintenanceStatus, MaintenanceProps, MaintenanceRow, MaintenanceType } from '@/lib/types'
 import { resolveMaintenanceStatus } from '@/lib/maintenance-status'
+import { metaLine, toneFor } from '@/app/(dashboard)/dashboard/cars/[id]/maintenance-history-section'
 
-// const todayStr = new Date().toISOString().split('T')[0];
-
-function statusClass(status: MaintenanceStatus) {
+export function statusClass(status: MaintenanceStatus) {
   if (status === 'Overdue') return 'bg-rose-100 text-rose-700'
   if (status === 'Active') return 'bg-blue-100 text-blue-700'
   if (status === 'Complete') return 'bg-emerald-100 text-emerald-700'
@@ -27,16 +26,18 @@ export default function MaintenanceCreateDrawer({
   variant = 'page',
   showList = true,
   onClose,
+  presetType,
+  startOpen = false,
 }: MaintenanceProps) {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(variant === 'modal')
+  const [isOpen, setIsOpen] = useState(variant === 'modal' || startOpen)
   const [isPending, startTransition] = useTransition()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [selectCarMileage, setSelectCarMileage] = useState(carMileage ?? 0)
   const [selectedCarId, setSelectedCarId] = useState(carId ?? '')
   const emptyForm = {
     maintenanceId: '',
-    type: 'Maintenance' as MaintenanceType,
+    type: (presetType ?? 'Maintenance') as MaintenanceType,
     name: '',
     description: '',
     remark: '',
@@ -54,10 +55,6 @@ export default function MaintenanceCreateDrawer({
   const isEdit = Boolean(formData.maintenanceId)
 
   const title = useMemo(() => (isEdit ? 'แก้ไขการบำรุงรักษา' : 'เพิ่มการบำรุงรักษา'), [isEdit])
-
-  const openCreate = () => {
-    handleClose(true)
-  }
   
   function calculateDateCount(startStr: string, endStr: string): number {
     if (!startStr || !endStr) return 0;
@@ -241,81 +238,55 @@ export default function MaintenanceCreateDrawer({
   return (
     <>
       {showList ? (
-        <Card className="rounded-xl shadow-sm">
-          <CardContent className="px-0 md:px-6">
-            <div className="mb-4 flex items-center justify-between gap-3 px-3 md:px-0">
-              <div className="flex items-center gap-2">
-                <Settings2 className="h-5 w-5 text-blue-700" />
-                <h2 className="text-lg font-bold text-slate-950">ประวัติการบำรุงรักษา</h2>
-              </div>
-              <Button type="button" onClick={openCreate} className="flex items-center gap-1">
-                <Wrench className="h-4 w-4" />
-                เพิ่มการบำรุงรักษา
-              </Button>
-            </div>
-
-            <div className="overflow-x-auto rounded-xl md:border border-slate-200">
-              <table className="w-full min-w-max text-left border-collapse">
-                <thead className="bg-slate-50">
-                  <tr className="text-left text-sm font-semibold text-slate-600">
-                    <th className="px-4 py-3">สถานะ</th>
-                    <th className="px-4 py-3">ประเภทการบำรุงรักษา</th>
-                    <th className="px-4 py-3">รายละเอียด</th>
-                    <th className="px-4 py-3">วันที่แจ้งเตือน</th>
-                    <th className="px-4 py-3">กำหนดเลขไมล์</th>
-                    <th className="px-4 py-3">แจ้งเตือนเลขไมล์</th>
-                    <th className="w-10 text-center sticky right-0 bg-muted p-3 drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]">จัดการ</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {maintenances.length > 0 ? (
-                    maintenances.map((row) => (
-                      <tr key={row.id} className="align-top text-sm text-slate-700">
-                        <td className="px-4 py-3">
-                          <Badge className={statusClass(row.status)}>{getNotificationLabel(row.status)}</Badge>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900">{getStatusLabel(row.type) ?? '-'}</div>
-                          <div className="text-xs text-slate-500">{row.name ?? '-'}</div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className='overflow-hidden text-nowrap'>{row.description ?? '-'}</div>
-                        </td>
-                        <td className="px-4 py-3">{row.dateStart ? `${formatThaiDate(row.dateStart)} ถึง ${formatThaiDate(row.dateEnd)}` : '-'}</td>
-                        <td className="px-4 py-3">{formatCompactNumber(toNumber(row.mileageTarget))}</td>
-                        <td className="px-4 py-3">{formatCompactNumber(toNumber(row.mileageAlert))}</td>
-                        <td className="sticky right-0 bg-white p-3 border-l drop-shadow-[-4px_0_4px_rgba(0,0,0,0.05)]">
-                          <div className="flex gap-2 justify-end">
-                            {row.status === 'Active' || row.status === 'Overdue' ? (
-                              <>
-                                <AlertDialogDestructive 
-                                  onClick={() => handleComplete(row.id)} 
-                                  title='ต้องการปิดงานนี้ใช่หรือไม่?' 
-                                  description='คุณแน่ใจหรือไม่ว่าต้องการปิดงานนี้? การกระทำนี้ไม่สามารถย้อนกลับได้.'
-                                  variant={'notification'} 
-                                />
-                              </>
-                            ) : null}
-                            <Button type="button" size="icon-sm" variant="outline" onClick={() => openEdit(row)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <AlertDialogDestructive onClick={() => handleDelete(row.id)} variant={'destructive'} />
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
-                        ไม่มีประวัติการบำรุงรักษา
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+        <>
+        {maintenances.length > 0 ? (
+          maintenances.map((row) => {
+            const tone = toneFor(row.status)
+            return (
+              <button 
+                onClick={() => openEdit(row)} 
+                key={row.id}
+                type="button"
+                className='flex w-full items-end justify-between rounded-sm border border-accent bg-white py-3 px-2 mb-3 text-left shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition hover:bg-[#FAFAF9]'
+              >
+                <div className='w-full'>
+                  <div className='flex items-center gap-3'>
+                    <div
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]"
+                      style={{ background: tone.bg, color: tone.fg }}
+                    >
+                      <Wrench className="h-4.25 w-4.25" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="truncate text-[13.5px] font-bold text-[#1C1917]">{row.name || '-'}</div>
+                        <span
+                          className="shrink-0 rounded-full px-2.5 py-0.75 text-[10.5px] font-semibold"
+                          style={{ background: tone.bg, color: tone.fg }}
+                        >
+                          {getNotificationLabel(row.status)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-1 text-[12px] text-[#78716C]">{metaLine(row)}</div>
+                </div>
+                <AlertDialogDestructive onClick={() => handleDelete(row.id)} variant={'destructive'} />
+              </button>
+            )
+          })) : (
+            <>
+            <Card>
+              <CardContent className="py-14 text-center">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F5F3FF] text-[#6D28D9]">
+                  <Wrench className="h-7 w-7" aria-hidden="true" />
+                </div>
+                <h2 className="mt-5 text-xl font-extrabold text-[#1C1917]">ไม่มีประวัติการบำรุงรักษา</h2>
+              </CardContent>
+            </Card>
+            </>
+          )}
+        </>
       ) : null}
 
       {isOpen ? (

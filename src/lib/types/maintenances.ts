@@ -39,5 +39,7 @@ export type  MaintenanceProps = {
   variant?: 'page' | 'modal'
   showList?: boolean
   onClose?: () => void
+  presetType?: MaintenanceType
+  startOpen?: boolean
 }
 

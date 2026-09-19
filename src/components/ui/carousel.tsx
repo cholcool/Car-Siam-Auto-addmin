@@ -136,9 +136,11 @@ export function CarouselNext({ className, ...props }: React.ComponentProps<typeo
   )
 }
 
-export function CarouselDots({ className }: { className?: string }) {
+export function CarouselDots({ className, variant = 'default' }: { className?: string; variant?: 'default' | 'overlay' }) {
   const { slideCount, selectedIndex, scrollTo } = useCarousel()
   if (slideCount <= 1) return null
+  const activeClass = variant === 'overlay' ? 'bg-white' : 'bg-slate-900'
+  const inactiveClass = variant === 'overlay' ? 'bg-white/40 hover:bg-white/70' : 'bg-slate-300 hover:bg-slate-500'
   return (
     <div className={cn('mt-3 flex items-center justify-center gap-2', className)}>
       {Array.from({ length: slideCount }).map((_, index) => (
@@ -147,7 +149,7 @@ export function CarouselDots({ className }: { className?: string }) {
           type="button"
           aria-label={`Go to slide ${index + 1}`}
           onClick={() => scrollTo(index)}
-          className={cn('h-2.5 w-2.5 rounded-full transition', index === selectedIndex ? 'bg-slate-900' : 'bg-slate-300 hover:bg-slate-500')}
+          className={cn('h-1.5 w-1.5 rounded-full transition', index === selectedIndex ? activeClass : inactiveClass)}
         />
       ))}
     </div>

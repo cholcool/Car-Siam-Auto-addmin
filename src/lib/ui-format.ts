@@ -4,7 +4,7 @@ export const appSurfaceClass =
   "rounded-2xl border border-[#E7E5E4] bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04),0_8px_20px_rgba(28,25,23,0.06)]";
 
 export const appInputClass =
-  "h-11 w-full rounded-md border border-[#E7E5E4] bg-white px-3.5 text-sm font-medium text-[#1C1917] outline-none transition-colors placeholder:text-[#A8A29E] focus-visible:border-[#6D28D9] focus-visible:ring-2 focus-visible:ring-[#6D28D9]/20";
+  "h-11 w-full rounded-sm border border-[#E7E5E4] bg-white px-3.5 text-sm font-medium text-[#1C1917] outline-none transition-colors placeholder:text-[#A8A29E] focus-visible:border-[#6D28D9] focus-visible:ring-2 focus-visible:ring-[#6D28D9]/20";
 
 export function toNumber(value: unknown) {
   if (typeof value === "number") return value;

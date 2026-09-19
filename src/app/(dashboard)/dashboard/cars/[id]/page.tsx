@@ -1,15 +1,13 @@
-import { Suspense, cache } from 'react'
+import { cache } from 'react'
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { ArrowLeft, Save, Sparkles, Gauge, RectangleEllipsis } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { ChevronDown, ChevronLeft } from 'lucide-react'
 import prisma from '@/lib/prisma'
-import { Badge, Button, Card, CardContent, Input, Textarea, Select } from '@/components/ui'
-import { getStatusBadgeClass, getStatusLabel, formatCompactNumber, toNumber } from '@/lib/ui-format'
-import { updateCar } from '../cars-actions'
-import { MaintenanceRow, CarStatusOptions, CarStatus } from '@/lib/types'
-import { sortMaintenancesForAlert } from '@/lib/maintenance-status'
-import CarImagesInteractive from './car-images-interactive'
-import MaintenanceInteractive from './maintenance-interactive'
+import { getStatusLabel, getStatusColorGroup, formatCompactNumber, formatThaiDate, toNumber } from '@/lib/ui-format'
+import { MaintenanceRow } from '@/lib/types'
+import CarImageCarousel from './car-image-carousel'
+import CarEditLauncher from './car-edit-launcher'
+import MaintenanceHistorySection from './maintenance-history-section'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,12 +31,12 @@ const getCar = cache(async (id: string) =>
       remark: true,
       brandId: true,
       vehicleTypeId: true,
+      createdAt: true,
       brand: { select: { name: true } },
+      vehicleType: { select: { name: true } },
     },
   })
 )
-
-type CarDetail = NonNullable<Awaited<ReturnType<typeof getCar>>>
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params
@@ -47,130 +45,171 @@ export async function generateMetadata({ params }: PageProps) {
   return { title: `${car.brand.name} ${car.model} | Car Siam Auto Admin` }
 }
 
-function SectionSkeleton({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-xl bg-slate-100 ${className}`} />
-}
-
-async function CarInfoForm({ car, saveCar }: { car: CarDetail; saveCar: (formData: FormData) => Promise<void> }) {
-  const [vehicleTypes, brands] = await Promise.all([
-    prisma.vehicleType.findMany({ where: { isDeleted: false }, orderBy: { name: 'asc' } }),
-    prisma.brand.findMany({ where: { isDeleted: false }, orderBy: { name: 'asc' } }),
-  ])
-
+function InfoRow({ label, value, trailing }: { label: string; value: string; trailing?: React.ReactNode }) {
   return (
-    <aside>
-      <Card className="rounded-xl shadow-sm">
-        <CardContent className="p-6">
-          <div className="mb-5 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-blue-700" />
-            <h2 className="text-lg font-bold text-slate-950">ข้อมูลรถ</h2>
-          </div>
-
-          <form id="car-form" action={saveCar} className="grid gap-2 md:grid-cols-2">
-            <div className="space-y-2 xl:col-span-2">
-              <label className="text-sm font-semibold text-slate-700">สถานะ <span className="text-red-600">*</span></label>
-              <Select name="status" defaultValue={car.status} required>
-                {CarStatusOptions.map((status) => <option key={status.value} value={status.value}>{status.label}</option>)}
-              </Select>
-            </div>
-            <div className="space-y-2 xl:col-span-2">
-              <label className="text-sm font-semibold text-slate-700">ประเภทรถ <span className="text-red-600">*</span></label>
-              <Select name="vehicleTypeId" defaultValue={car.vehicleTypeId} required>
-                <option value="">-- เลือกประเภทรถ --</option>
-                {vehicleTypes.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}
-              </Select>
-            </div>
-            <div className="space-y-2 xl:col-span-2">
-              <label className="text-sm font-semibold text-slate-700">แบรนด์รถ <span className="text-red-600">*</span></label>
-              <Select name="brandId" defaultValue={car.brandId} required>
-                <option value="">-- เลือกแบรนด์ --</option>
-                {brands.map((brand) => <option key={brand.id} value={brand.id}>{brand.name}</option>)}
-              </Select>
-            </div>
-            <CarTextFields car={car} />
-          </form>
-        </CardContent>
-      </Card>
-    </aside>
+    <div className="flex items-center justify-between gap-3 border-b border-[#F0EFED] py-[13px] last:border-b-0">
+      <div className="text-[13px] text-[#78716C]">{label}</div>
+      <div className="flex items-center gap-1.5 text-[13.5px] font-semibold text-[#1C1917]">
+        {value}
+        {trailing}
+      </div>
+    </div>
   )
 }
 
-function CarTextFields({ car }: { car: CarDetail }) {
-  return <>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">รุ่น <span className="text-red-600">*</span></label><Input name="model" defaultValue={car.model} maxLength={100} required /></div>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">ปีที่ผลิต <span className="text-red-600">*</span></label><Input name="year" defaultValue={car.year} maxLength={4} inputMode="numeric" required /></div>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">สีรถ <span className="text-red-600">*</span></label><Input name="color" defaultValue={car.color} maxLength={50} required /></div>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">ทะเบียน <span className="text-red-600">*</span></label><Input name="license" defaultValue={car.license} maxLength={20} required /></div>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">เลขเครื่องยนต์</label><Input name="engine" defaultValue={car.engine ?? ''} maxLength={20} /></div>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">เลขตัวถัง</label><Input name="chassis" defaultValue={car.chassis ?? ''} maxLength={20} /></div>
-    <div className="space-y-2 xl:col-span-2"><label className="text-sm font-semibold text-slate-700">เลขไมล์</label><Input name="mileage" type="number" step="1" min="0" defaultValue={car.mileage} /></div>
-    <div className="space-y-2 md:col-span-2"><label className="text-sm font-semibold text-slate-700">หมายเหตุ</label><Textarea name="remark" defaultValue={car.remark ?? ''} maxLength={500} rows={4} /></div>
-  </>
-}
-
-async function CarImagesThenMaintenance({ carId, carMileage }: { carId: string; carMileage: number }) {
-  const imageRows = await prisma.mapCarImage.findMany({
-    where: { carId, isDeleted: false, image: { isDeleted: false } },
-    select: { image: { select: { id: true, url: true, name: true } } },
-    orderBy: { number: 'asc' },
-  })
-  const images = imageRows.map(({ image }) => image)
-
-  return <>
-    <CarImagesInteractive carId={carId} images={images} />
-    <Suspense fallback={<SectionSkeleton className="h-96" />}>
-      <MaintenanceSection carId={carId} carMileage={carMileage} />
-    </Suspense>
-  </>
-}
-
-async function MaintenanceSection({ carId, carMileage }: { carId: string; carMileage: number }) {
-  const maintenances = await prisma.maintenance.findMany({
-    where: { carId, isDeleted: false },
-    orderBy: { dateStart: 'desc' },
-  })
-  const rows: MaintenanceRow[] = maintenances.map((item) => ({
-    id: item.id, type: item.type, name: item.name, description: item.description, remark: item.remark,
-    status: item.status, mileage: item.mileage ?? 0, mileageTarget: item.mileageTarget ?? 0,
-    mileageAlert: item.mileageAlert ?? 0, dateAlert: item.dateAlert?.toISOString().slice(0, 10) ?? null,
-    dateStart: item.dateStart?.toISOString().slice(0, 10) ?? null,
-    dateEnd: item.dateEnd?.toISOString().slice(0, 10) ?? null, dateCount: item.dateCount ?? 0,
-  })).sort(sortMaintenancesForAlert)
-
-  return <MaintenanceInteractive carId={carId} carMileage={carMileage} maintenances={rows} />
+function formatDateTimeThai(value: Date | string) {
+  const date = value instanceof Date ? value : new Date(value)
+  const datePart = formatThaiDate(date)
+  const timePart = new Intl.DateTimeFormat('th-TH', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Bangkok',
+  }).format(date)
+  return `${datePart} ${timePart} น.`
 }
 
 export default async function CarDetailPage({ params }: PageProps) {
   const { id } = await params
-  const car = await getCar(id)
+  const [car, imageRows, maintenanceItems, vehicleTypes, brands] = await Promise.all([
+    getCar(id),
+    prisma.mapCarImage.findMany({
+      where: { carId: id, isDeleted: false, image: { isDeleted: false } },
+      select: { image: { select: { id: true, url: true, name: true } } },
+      orderBy: { number: 'asc' },
+    }),
+    prisma.maintenance.findMany({ where: { carId: id, isDeleted: false }, orderBy: { dateStart: 'desc' } }),
+    prisma.vehicleType.findMany({ where: { isDeleted: false }, orderBy: { name: 'asc' } }),
+    prisma.brand.findMany({ where: { isDeleted: false }, orderBy: { name: 'asc' } }),
+  ])
+
   if (!car) return notFound()
 
-  async function saveCar(formData: FormData) {
-    'use server'
-    const result = await updateCar({
-      carId: id, vehicleTypeId: String(formData.get('vehicleTypeId') ?? ''), brandId: String(formData.get('brandId') ?? ''),
-      model: String(formData.get('model') ?? '').trim(), year: String(formData.get('year') ?? '').trim(),
-      color: String(formData.get('color') ?? '').trim(), license: String(formData.get('license') ?? '').trim(),
-      engine: String(formData.get('engine') ?? '').trim() || null, chassis: String(formData.get('chassis') ?? '').trim() || null,
-      mileage: Number(formData.get('mileage') ?? 0), status: String(formData.get('status') ?? 'Available') as CarStatus,
-      remark: String(formData.get('remark') ?? '').trim() || null,
-    })
-    if (!result.success) throw new Error(result.error || 'ไม่สามารถบันทึกข้อมูลรถได้')
-    redirect(`/dashboard/cars/${id}`)
+  const images = imageRows.map(({ image }) => image)
+
+  const maintenanceRows: MaintenanceRow[] = maintenanceItems.map((item) => ({
+    id: item.id,
+    type: item.type,
+    name: item.name,
+    description: item.description,
+    remark: item.remark,
+    status: item.status,
+    mileage: item.mileage ?? 0,
+    mileageTarget: item.mileageTarget ?? 0,
+    mileageAlert: item.mileageAlert ?? 0,
+    dateAlert: item.dateAlert?.toISOString().slice(0, 10) ?? null,
+    dateStart: item.dateStart?.toISOString().slice(0, 10) ?? null,
+    dateEnd: item.dateEnd?.toISOString().slice(0, 10) ?? null,
+    dateCount: item.dateCount ?? 0,
+  }))
+
+  const onlyMaintenance = maintenanceRows.filter((row) => row.type === 'Maintenance')
+  const onlyTaxInsurance = maintenanceRows.filter((row) => row.type === 'Tax' || row.type === 'Insurance')
+
+  const statusGroup = getStatusColorGroup(car.status)
+  const statusFgVar = `var(--status-${statusGroup}-fg)`
+  const statusBgVar = `var(--status-${statusGroup}-bg)`
+
+  const initialValues = {
+    vehicleTypeId: car.vehicleTypeId,
+    brandId: car.brandId,
+    model: car.model,
+    year: car.year,
+    color: car.color,
+    license: car.license,
+    engine: car.engine ?? '',
+    chassis: car.chassis ?? '',
+    mileage: String(car.mileage ?? 0),
+    status: car.status,
+    remark: car.remark ?? '',
   }
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-4">
-          <Link href="/dashboard/cars" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-blue-700"><ArrowLeft className="h-4 w-4" />กลับไปหน้าจัดการรถ</Link>
-          <div><div className="flex flex-wrap items-center gap-3"><h1 className="lg:text-3xl text-2xl font-extrabold tracking-tight text-slate-950">{car.brand.name} {car.model}</h1><Badge className={getStatusBadgeClass(car.status)}>{getStatusLabel(car.status)}</Badge></div><p className="mt-2 flex gap-3 text-base font-medium text-slate-500"><RectangleEllipsis /> ทะเบียน {car.license} <Gauge /> เลขไมล์ {formatCompactNumber(toNumber(car.mileage))}</p></div>
+    <div className="mx-auto max-w-3xl">
+      <div className="sticky top-0 z-30 -mx-4 mb-4 flex items-center justify-between bg-white/95 px-4 py-3 md:-mx-0 md:rounded md:border-x">
+        <Link
+          href="/dashboard/cars"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-semibold text-[#44403C] hover:bg-[#F5F5F4]"
+        >
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+          กลับไปหน้าจัดการรถ
+        </Link>
+        <CarEditLauncher
+          carId={car.id}
+          vehicleTypes={vehicleTypes}
+          brands={brands}
+          initialValues={initialValues}
+          initialImages={images}
+        />
+      </div>
+
+      <div className="space-y-3 md:rounded md:border-x md:border-b md:border-[#E7E5E4] md:bg-white md:p-0 md:pb-6">
+        <CarImageCarousel images={images} />
+
+        <div className="bg-white pb-1 pt-1 px-4 -mx-4 md:mx-0">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-[19px] font-extrabold text-[#1C1917]">
+                {car.brand.name} {car.model}
+              </div>
+              <div className="mt-[3px] text-[13px] text-[#78716C]">
+                ทะเบียน {car.license} · {car.vehicleType.name}
+              </div>
+            </div>
+            <span
+              className="mt-0.5 whitespace-nowrap rounded-full px-3 py-[5px] text-[11px] font-semibold"
+              style={{ color: statusFgVar, background: statusBgVar }}
+            >
+              {getStatusLabel(car.status)}
+            </span>
+          </div>
+
+          <div className="mt-4 flex gap-2.5">
+            <div className="flex-1 rounded-xl bg-[#FAFAF9] px-3 py-2.5">
+              <div className="text-[10.5px] text-[#78716C]">เลขไมล์ปัจจุบัน</div>
+              <div className="mt-0.5 text-[14.5px] font-bold text-[#1C1917]">{formatCompactNumber(toNumber(car.mileage))} กม.</div>
+            </div>
+            <div className="flex-1 rounded-xl bg-[#FAFAF9] px-3 py-2.5">
+              <div className="text-[10.5px] text-[#78716C]">ปีที่ผลิต</div>
+              <div className="mt-0.5 text-[14.5px] font-bold text-[#1C1917]">{car.year}</div>
+            </div>
+            <div className="flex-1 rounded-xl bg-[#FAFAF9] px-3 py-2.5">
+              <div className="text-[10.5px] text-[#78716C]">สี</div>
+              <div className="mt-0.5 text-[14.5px] font-bold text-[#1C1917]">{car.color}</div>
+            </div>
+          </div>
         </div>
-        <Button type="submit" form="car-form" variant="save"><Save className="h-4 w-4" />บันทึกข้อมูลรถ</Button>
-      </header>
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-        <div className="space-y-6 overflow-auto"><Suspense fallback={<SectionSkeleton className="h-80" />}><CarImagesThenMaintenance carId={car.id} carMileage={car.mileage} /></Suspense></div>
-        <Suspense fallback={<SectionSkeleton className="h-155" />}><CarInfoForm car={car} saveCar={saveCar} /></Suspense>
+
+        <div className="md:px-6">
+          <div className="mb-3 text-[15px] font-bold text-[#1C1917]">ข้อมูลรถ</div>
+          <div className="rounded bg-white px-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <InfoRow label="ประเภทรถ" value={car.vehicleType.name} />
+            <InfoRow label="ยี่ห้อ / รุ่น" value={`${car.brand.name} · ${car.model}`} />
+            <InfoRow label="ทะเบียนรถ" value={car.license} />
+            <InfoRow label="เลขเครื่องยนต์" value={car.engine || '—'} />
+            <InfoRow label="เลขตัวถัง" value={car.chassis || '—'} />
+            <InfoRow
+              label="สถานะ"
+              value={getStatusLabel(car.status)}
+              trailing={<ChevronDown className="h-3.5 w-3.5 text-[#A8A29E]" aria-hidden="true" />}
+            />
+            <InfoRow label="วันที่สร้างรายการ" value={formatDateTimeThai(car.createdAt)} />
+          </div>
+
+          <div className="mt-3 rounded-sm bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <div className="mb-1.5 text-[13px] text-[#78716C]">หมายเหตุ</div>
+            <div className="text-[13px] leading-relaxed text-[#1C1917]">{car.remark || 'ไม่มีหมายเหตุเพิ่มเติม'}</div>
+          </div>
+        </div>
+
+        <div className="pb-2 md:px-6">
+          <MaintenanceHistorySection
+            carId={car.id}
+            carMileage={car.mileage}
+            maintenanceRows={onlyMaintenance}
+            taxRows={onlyTaxInsurance}
+          />
+        </div>
       </div>
     </div>
   )
